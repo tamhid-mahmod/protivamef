@@ -52,6 +52,8 @@
     "@tiptap/pm": "^2.11.0",
     "@tiptap/react": "^2.11.0",
     "@tiptap/starter-kit": "^2.11.0",
+    "autosuggest-highlight": "^3.3.4",
+    "axios": "^1.7.9",
     "dayjs": "^1.11.13",
     "framer-motion": "^11.13.1",
     "i18next": "^24.2.0",
@@ -75,6 +77,7 @@
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@svgr/webpack": "^8.1.0",
+    "@types/autosuggest-highlight": "^3.2.3",
     "@types/node": "^22.10.1",
     "@types/nprogress": "^0.2.3",
     "@types/react": "^18.3.13",

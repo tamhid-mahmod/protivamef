@@ -16,7 +16,9 @@ import { Snackbar } from 'src/components/snackbar';
 import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { detectSettings } from 'src/components/settings/server';
-import { defaultSettings, SettingsProvider } from 'src/components/settings';
+import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
+
+import { AuthProvider } from 'src/auth/context';
 
 // ----------------------------------------------------------------------
 
@@ -74,25 +76,28 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         />
 
         <I18nProvider lang={appConfig.i18nLang}>
-          <SettingsProvider
-            cookieSettings={appConfig.cookieSettings}
-            defaultSettings={defaultSettings}
-          >
-            <LocalizationProvider>
-              <AppRouterCacheProvider options={{ key: 'css' }}>
-                <ThemeProvider
-                  defaultMode={themeConfig.defaultMode}
-                  modeStorageKey={themeConfig.modeStorageKey}
-                >
-                  <MotionLazy>
-                    <Snackbar />
-                    <ProgressBar />
-                    {children}
-                  </MotionLazy>
-                </ThemeProvider>
-              </AppRouterCacheProvider>
-            </LocalizationProvider>
-          </SettingsProvider>
+          <AuthProvider>
+            <SettingsProvider
+              cookieSettings={appConfig.cookieSettings}
+              defaultSettings={defaultSettings}
+            >
+              <LocalizationProvider>
+                <AppRouterCacheProvider options={{ key: 'css' }}>
+                  <ThemeProvider
+                    defaultMode={themeConfig.defaultMode}
+                    modeStorageKey={themeConfig.modeStorageKey}
+                  >
+                    <MotionLazy>
+                      <Snackbar />
+                      <ProgressBar />
+                      <SettingsDrawer defaultSettings={defaultSettings} />
+                      {children}
+                    </MotionLazy>
+                  </ThemeProvider>
+                </AppRouterCacheProvider>
+              </LocalizationProvider>
+            </SettingsProvider>
+          </AuthProvider>
         </I18nProvider>
       </body>
     </html>

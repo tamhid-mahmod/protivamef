@@ -13,20 +13,15 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { useColorScheme } from '@mui/material/styles';
 
-import { themeConfig } from 'src/theme/theme-config';
-import { primaryColorPresets } from 'src/theme/with-settings';
-
 import { Iconify } from '../../iconify';
 import { BaseOption } from './base-option';
 import { Scrollbar } from '../../scrollbar';
 import { SmallBlock, LargeBlock } from './styles';
-import { PresetsOptions } from './presets-options';
 import { FullScreenButton } from './fullscreen-button';
-import { FontSizeOptions, FontFamilyOptions } from './font-options';
 import { useSettingsContext } from '../context/use-settings-context';
 import { NavColorOptions, NavLayoutOptions } from './nav-layout-option';
 
-import type { SettingsState, SettingsDrawerProps } from '../types';
+import type { SettingsDrawerProps } from '../types';
 
 // ----------------------------------------------------------------------
 
@@ -43,15 +38,12 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
   }, [mode, systemMode]);
 
   // Visible options by default settings
-  const isFontFamilyVisible = hasKeys(defaultSettings, ['fontFamily']);
   const isCompactLayoutVisible = hasKeys(defaultSettings, ['compactLayout']);
   const isDirectionVisible = hasKeys(defaultSettings, ['direction']);
   const isColorSchemeVisible = hasKeys(defaultSettings, ['colorScheme']);
   const isContrastVisible = hasKeys(defaultSettings, ['contrast']);
   const isNavColorVisible = hasKeys(defaultSettings, ['navColor']);
   const isNavLayoutVisible = hasKeys(defaultSettings, ['navLayout']);
-  const isPrimaryColorVisible = hasKeys(defaultSettings, ['primaryColor']);
-  const isFontSizeVisible = hasKeys(defaultSettings, ['fontSize']);
 
   const handleReset = useCallback(() => {
     settings.onReset();
@@ -136,25 +128,6 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
     />
   );
 
-  const renderPresets = () => (
-    <LargeBlock
-      title="Presets"
-      canReset={settings.state.primaryColor !== defaultSettings.primaryColor}
-      onReset={() => settings.setState({ primaryColor: defaultSettings.primaryColor })}
-    >
-      <PresetsOptions
-        options={
-          Object.keys(primaryColorPresets).map((key) => ({
-            name: key,
-            value: primaryColorPresets[key].main,
-          })) as { name: SettingsState['primaryColor']; value: string }[]
-        }
-        value={settings.state.primaryColor}
-        onChangeOption={(newOption) => settings.setState({ primaryColor: newOption })}
-      />
-    </LargeBlock>
-  );
-
   const renderNav = () => (
     <LargeBlock title="Nav" tooltip="Dashboard only" sx={{ gap: 2.5 }}>
       {isNavLayoutVisible && (
@@ -180,43 +153,6 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
             options={['integrate', 'apparent']}
             value={settings.state.navColor}
             onChangeOption={(newOption) => settings.setState({ navColor: newOption })}
-          />
-        </SmallBlock>
-      )}
-    </LargeBlock>
-  );
-
-  const renderFont = () => (
-    <LargeBlock title="Font" sx={{ gap: 2.5 }}>
-      {isFontFamilyVisible && (
-        <SmallBlock
-          label="Family"
-          canReset={settings.state.fontFamily !== defaultSettings.fontFamily}
-          onReset={() => settings.setState({ fontFamily: defaultSettings.fontFamily })}
-        >
-          <FontFamilyOptions
-            options={[
-              themeConfig.fontFamily.primary,
-              'Inter Variable',
-              'DM Sans Variable',
-              'Nunito Sans Variable',
-            ]}
-            value={settings.state.fontFamily}
-            onChangeOption={(newOption) => settings.setState({ fontFamily: newOption })}
-          />
-        </SmallBlock>
-      )}
-      {isFontSizeVisible && (
-        <SmallBlock
-          label="Size"
-          canReset={settings.state.fontSize !== defaultSettings.fontSize}
-          onReset={() => settings.setState({ fontSize: defaultSettings.fontSize })}
-          sx={{ gap: 5 }}
-        >
-          <FontSizeOptions
-            options={[12, 20]}
-            value={settings.state.fontSize}
-            onChangeOption={(newOption) => settings.setState({ fontSize: newOption })}
           />
         </SmallBlock>
       )}
@@ -261,8 +197,6 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
           </Box>
 
           {(isNavColorVisible || isNavLayoutVisible) && renderNav()}
-          {isPrimaryColorVisible && renderPresets()}
-          {(isFontFamilyVisible || isFontSizeVisible) && renderFont()}
         </Box>
       </Scrollbar>
     </Drawer>
