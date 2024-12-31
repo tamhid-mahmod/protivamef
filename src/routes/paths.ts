@@ -3,10 +3,17 @@ import { kebabCase } from 'es-toolkit';
 // ----------------------------------------------------------------------
 
 const ROOTS = {
-  AUTH: '/auth',
+  AUTH: '',
   DASHBOARD: '/dashboard',
 };
 
 // ----------------------------------------------------------------------
 
-export const paths = {};
+export const paths = {
+  contact: '/contact-us',
+  faqs: '/faqs',
+  // AUTH
+  auth: {
+    resetPassword: `${ROOTS.AUTH}/reset-password`,
+  },
+};
