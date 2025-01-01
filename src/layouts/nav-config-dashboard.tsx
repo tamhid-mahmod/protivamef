@@ -13,32 +13,14 @@ const icon = (name: string) => (
 );
 
 const ICONS = {
-  job: icon('ic-job'),
-  blog: icon('ic-blog'),
-  chat: icon('ic-chat'),
-  mail: icon('ic-mail'),
+  region: icon('ic-region'),
+  student: icon('ic-student'),
+  centre: icon('ic-centre'),
+  certificate: icon('ic-certificate'),
   user: icon('ic-user'),
-  file: icon('ic-file'),
-  lock: icon('ic-lock'),
-  tour: icon('ic-tour'),
-  order: icon('ic-order'),
-  label: icon('ic-label'),
-  blank: icon('ic-blank'),
-  kanban: icon('ic-kanban'),
-  folder: icon('ic-folder'),
+  admit: icon('ic-admit'),
   course: icon('ic-course'),
-  banking: icon('ic-banking'),
-  booking: icon('ic-booking'),
-  invoice: icon('ic-invoice'),
-  product: icon('ic-product'),
-  calendar: icon('ic-calendar'),
-  disabled: icon('ic-disabled'),
-  external: icon('ic-external'),
-  menuItem: icon('ic-menu-item'),
-  ecommerce: icon('ic-ecommerce'),
-  analytics: icon('ic-analytics'),
   dashboard: icon('ic-dashboard'),
-  parameter: icon('ic-parameter'),
 };
 
 // ----------------------------------------------------------------------
@@ -50,5 +32,73 @@ export const navData: NavSectionProps['data'] = [
   {
     subheader: 'Overview',
     items: [{ title: 'App', path: paths.dashboard.root, icon: ICONS.dashboard }],
+  },
+  /**
+   * Management
+   */
+  {
+    subheader: 'Management',
+    items: [
+      {
+        title: 'User',
+        path: paths.dashboard.user.root,
+        icon: ICONS.user,
+        children: [{ title: 'List', path: paths.dashboard.user.list }],
+      },
+      {
+        title: 'Student',
+        path: paths.dashboard.student.root,
+        icon: ICONS.student,
+        children: [
+          { title: 'List', path: paths.dashboard.student.list },
+          { title: 'Create', path: paths.dashboard.student.new },
+        ],
+      },
+      {
+        title: 'Course',
+        path: paths.dashboard.student.root,
+        icon: ICONS.course,
+        children: [
+          {
+            title: 'Category',
+            path: '#/dashboard/menu_level/menu_level_1a',
+            children: [
+              { title: 'List', path: '#/dashboard/menu_level/menu_level_1a/menu_level_2a' },
+              { title: 'Create', path: '#/dashboard/menu_level/menu_level_1a/menu_level_2a' },
+            ],
+          },
+          { title: 'List', path: paths.dashboard.centre.list },
+          { title: 'Create', path: paths.dashboard.centre.new },
+        ],
+      },
+      {
+        title: 'Centre',
+        path: paths.dashboard.centre.root,
+        icon: ICONS.centre,
+        children: [
+          { title: 'List', path: paths.dashboard.centre.list },
+          { title: 'Create', path: paths.dashboard.centre.new },
+        ],
+      },
+      {
+        title: 'Region',
+        path: paths.dashboard.region.root,
+        icon: ICONS.region,
+        children: [
+          { title: 'Division', path: paths.dashboard.region.division },
+          { title: 'District', path: paths.dashboard.region.district },
+        ],
+      },
+    ],
+  },
+  /**
+   * Print
+   */
+  {
+    subheader: 'Print',
+    items: [
+      { title: 'Certificate', path: paths.dashboard.certificate, icon: ICONS.certificate },
+      { title: 'Admit card', path: paths.dashboard.admit, icon: ICONS.admit },
+    ],
   },
 ];
