@@ -56,15 +56,15 @@ export const navData: NavSectionProps['data'] = [
       },
       {
         title: 'Course',
-        path: paths.dashboard.student.root,
+        path: paths.dashboard.course.root,
         icon: ICONS.course,
         children: [
           {
             title: 'Category',
-            path: '#/dashboard/menu_level/menu_level_1a',
+            path: paths.dashboard.course.category.root,
             children: [
-              { title: 'List', path: '#/dashboard/menu_level/menu_level_1a/menu_level_2a' },
-              { title: 'Create', path: '#/dashboard/menu_level/menu_level_1a/menu_level_2a' },
+              { title: 'List', path: paths.dashboard.course.category.list },
+              { title: 'Create', path: paths.dashboard.course.category.new },
             ],
           },
           { title: 'List', path: paths.dashboard.centre.list },

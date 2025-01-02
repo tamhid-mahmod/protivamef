@@ -29,6 +29,16 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/student/list`,
       new: `${ROOTS.DASHBOARD}/student/new`,
     },
+    course: {
+      root: `${ROOTS.DASHBOARD}/course`,
+      list: `${ROOTS.DASHBOARD}/course/list`,
+      new: `${ROOTS.DASHBOARD}/course/new`,
+      category: {
+        root: `${ROOTS.DASHBOARD}/course/category`,
+        list: `${ROOTS.DASHBOARD}/course/category/list`,
+        new: `${ROOTS.DASHBOARD}/course/category/new`,
+      },
+    },
     centre: {
       root: `${ROOTS.DASHBOARD}/centre`,
       list: `${ROOTS.DASHBOARD}/centre/list`,
