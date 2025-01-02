@@ -172,7 +172,7 @@ function RowItem({ row }: RowItemProps) {
         <MenuItem>
           <Link
             component={RouterLink}
-            href={paths.dashboard.course.category.edit('hg')}
+            href={paths.dashboard.course.category.edit(row.id)}
             underline="none"
             color="inherit"
             sx={{ width: 1, display: 'flex', alignItems: 'center' }}
