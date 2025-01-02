@@ -63,7 +63,7 @@ export const navData: NavSectionProps['data'] = [
             title: 'Category',
             path: paths.dashboard.course.category.root,
             children: [
-              { title: 'List', path: paths.dashboard.course.category.list },
+              { title: 'List', path: paths.dashboard.course.category.root },
               { title: 'Create', path: paths.dashboard.course.category.new },
             ],
           },
