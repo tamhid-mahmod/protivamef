@@ -4,7 +4,7 @@ import type { IDateValue } from './common';
 
 export type ICentreTableFilters = {
   name: string;
-  status: string;
+  publish: string;
 };
 
 export type ICentreItem = {
@@ -16,8 +16,7 @@ export type ICentreItem = {
   address: string;
   division: string;
   district: string;
-  isPublished: boolean;
-  status: string;
+  publish: string;
   createdAt: IDateValue;
   updatedAt: IDateValue;
 };

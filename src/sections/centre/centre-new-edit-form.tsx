@@ -1,17 +1,19 @@
 import type { ICentreItem } from 'src/types/centre';
 
 import { z as zod } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import CardHeader from '@mui/material/CardHeader';
 import LoadingButton from '@mui/lab/LoadingButton';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -37,7 +39,7 @@ export const NewCentreSchema = zod.object({
   address: zod.string().min(1, { message: 'Address is required!' }),
   division: zod.string().min(1, { message: 'Division is required!' }),
   district: zod.string().min(1, { message: 'District is required!' }),
-  isPublished: zod.boolean().default(true),
+  publish: zod.string(),
 });
 
 // ----------------------------------------------------------------------
@@ -57,7 +59,7 @@ export function CentreNewEditForm({ currentCentre }: Props) {
     address: '',
     division: '',
     district: '',
-    isPublished: true,
+    publish: '',
   };
 
   const methods = useForm<NewCentreSchemaType>({
@@ -68,6 +70,7 @@ export function CentreNewEditForm({ currentCentre }: Props) {
 
   const {
     reset,
+    control,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -138,7 +141,23 @@ export function CentreNewEditForm({ currentCentre }: Props) {
         alignItems: 'center',
       }}
     >
-      <Field.Switch name="isPublished" label="Publish" sx={{ pl: 3 }} />
+      <FormControlLabel
+        control={
+          <Controller
+            name="publish"
+            control={control}
+            render={({ field }) => (
+              <Switch
+                {...field}
+                checked={field.value !== 'draft'}
+                onChange={(event) => field.onChange(event.target.checked ? 'published' : 'draft')}
+              />
+            )}
+          />
+        }
+        label="Publish"
+        sx={{ pl: 3, flexGrow: 1 }}
+      />
 
       <Box sx={{ flexGrow: 1 }} />
 

@@ -66,16 +66,25 @@ export function CentreTableRow({ row, selected, onSelectRow, onDeleteRow, editHr
         <ListItemText
           primary={fDate(row.createdAt)}
           secondary={fTime(row.createdAt)}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          secondaryTypographyProps={{ mt: 0.5, component: 'span', typography: 'caption' }}
+          slotProps={{
+            primary: {
+              typography: 'body2',
+              noWrap: true,
+            },
+            secondary: {
+              mt: 0.5,
+              component: 'span',
+              typography: 'caption',
+            },
+          }}
         />
       </TableCell>
 
       <TableCell>{row.phoneNumber}</TableCell>
 
       <TableCell>
-        <Label variant="soft" color={(row.status === 'published' && 'info') || 'default'}>
-          {row.status}
+        <Label variant="soft" color={(row.publish === 'published' && 'info') || 'default'}>
+          {row.publish}
         </Label>
       </TableCell>
 

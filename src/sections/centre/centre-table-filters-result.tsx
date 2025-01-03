@@ -23,9 +23,9 @@ export function CentreTableFiltersResult({ filters, totalResults, onResetPage, s
     updateFilters({ name: '' });
   }, [onResetPage, updateFilters]);
 
-  const handleRemoveStatus = useCallback(() => {
+  const handleRemovePublish = useCallback(() => {
     onResetPage();
-    updateFilters({ status: 'all' });
+    updateFilters({ publish: 'all' });
   }, [onResetPage, updateFilters]);
 
   const handleReset = useCallback(() => {
@@ -35,11 +35,11 @@ export function CentreTableFiltersResult({ filters, totalResults, onResetPage, s
 
   return (
     <FiltersResult totalResults={totalResults} onReset={handleReset} sx={sx}>
-      <FiltersBlock label="Status:" isShow={currentFilters.status !== 'all'}>
+      <FiltersBlock label="Status:" isShow={currentFilters.publish !== 'all'}>
         <Chip
           {...chipProps}
-          label={currentFilters.status}
-          onDelete={handleRemoveStatus}
+          label={currentFilters.publish}
+          onDelete={handleRemovePublish}
           sx={{ textTransform: 'capitalize' }}
         />
       </FiltersBlock>

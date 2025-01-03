@@ -75,7 +75,7 @@ export function CentreListView() {
 
   const filters = useSetState<ICentreTableFilters>({
     name: '',
-    status: 'all',
+    publish: 'all',
   });
   const { state: currentFilters, setState: updateFilters } = filters;
 
@@ -87,7 +87,7 @@ export function CentreListView() {
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
-  const canReset = !!currentFilters.name || currentFilters.status !== 'all';
+  const canReset = !!currentFilters.name || currentFilters.publish !== 'all';
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -114,10 +114,10 @@ export function CentreListView() {
     table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
-  const handleFilterStatus = useCallback(
+  const handleFilterPublish = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
       table.onResetPage();
-      updateFilters({ status: newValue });
+      updateFilters({ publish: newValue });
     },
     [updateFilters, table]
   );
@@ -172,8 +172,8 @@ export function CentreListView() {
 
         <Card>
           <Tabs
-            value={currentFilters.status}
-            onChange={handleFilterStatus}
+            value={currentFilters.publish}
+            onChange={handleFilterPublish}
             sx={[
               (theme) => ({
                 px: 2.5,
@@ -190,13 +190,13 @@ export function CentreListView() {
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === currentFilters.status) && 'filled') ||
+                      ((tab.value === 'all' || tab.value === currentFilters.publish) && 'filled') ||
                       'soft'
                     }
                     color={(tab.value === 'published' && 'info') || 'default'}
                   >
                     {['published', 'draft'].includes(tab.value)
-                      ? tableData.filter((user) => user.status === tab.value).length
+                      ? tableData.filter((user) => user.publish === tab.value).length
                       : tableData.length}
                   </Label>
                 }
@@ -306,7 +306,7 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
-  const { status, name } = filters;
+  const { publish, name } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
@@ -324,8 +324,8 @@ function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
     );
   }
 
-  if (status !== 'all') {
-    inputData = inputData.filter((centre) => centre.status === status);
+  if (publish !== 'all') {
+    inputData = inputData.filter((centre) => centre.publish === status);
   }
 
   return inputData;
