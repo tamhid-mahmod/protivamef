@@ -31,7 +31,6 @@ export const paths = {
     },
     course: {
       root: `${ROOTS.DASHBOARD}/course`,
-      list: `${ROOTS.DASHBOARD}/course/list`,
       new: `${ROOTS.DASHBOARD}/course/new`,
       category: {
         root: `${ROOTS.DASHBOARD}/course/category`,
@@ -41,7 +40,7 @@ export const paths = {
     },
     centre: {
       root: `${ROOTS.DASHBOARD}/centre`,
-      list: `${ROOTS.DASHBOARD}/centre/list`,
+      edit: (id: string) => `${ROOTS.DASHBOARD}/centre/${id}/edit`,
       new: `${ROOTS.DASHBOARD}/centre/new`,
     },
     region: {

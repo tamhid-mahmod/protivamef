@@ -67,8 +67,8 @@ export const navData: NavSectionProps['data'] = [
               { title: 'Create', path: paths.dashboard.course.category.new },
             ],
           },
-          { title: 'List', path: paths.dashboard.centre.list },
-          { title: 'Create', path: paths.dashboard.centre.new },
+          { title: 'List', path: paths.dashboard.course.root },
+          { title: 'Create', path: paths.dashboard.course.new },
         ],
       },
       {
@@ -76,7 +76,7 @@ export const navData: NavSectionProps['data'] = [
         path: paths.dashboard.centre.root,
         icon: ICONS.centre,
         children: [
-          { title: 'List', path: paths.dashboard.centre.list },
+          { title: 'List', path: paths.dashboard.centre.root },
           { title: 'Create', path: paths.dashboard.centre.new },
         ],
       },
