@@ -41,7 +41,7 @@ export const PhoneInput = forwardRef<HTMLDivElement, PhoneInputProps>((props, re
 
   const hasLabel = !!label;
 
-  const cleanValue = value.replace(/[\s-]+/g, '');
+  const cleanValue = (value ?? '').replace(/[\s-]+/g, '');
 
   const handleClear = useCallback(() => {
     onChange('' as Value);
