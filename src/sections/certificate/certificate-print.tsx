@@ -31,8 +31,6 @@ const styles: PritnItemStyles = {
     fontWeight: 'lighter',
   },
   certificateContainer: {
-    width: '980px',
-    height: '760px',
     backgroundImage: `url(${CONFIG.assetsDir}/assets/page/certificate.jpg)`,
     backgroundSize: '980px 760px',
     backgroundRepeat: 'no-repeat',
@@ -41,7 +39,8 @@ const styles: PritnItemStyles = {
     position: 'relative',
   },
   contentBox: (theme: Theme): CSSObject => ({
-    height: 1,
+    width: '980px',
+    height: '760px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
