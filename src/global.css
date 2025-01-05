@@ -1,6 +1,13 @@
 /** **************************************
 * Fonts: app
 *************************************** */
+@font-face {
+  font-family: 'MariageD';
+  src: url('/fonts/MariageD-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @import '@fontsource-variable/public-sans';
 
 @import '@fontsource/barlow/400.css';
