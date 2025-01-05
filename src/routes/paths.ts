@@ -44,9 +44,9 @@ export const paths = {
       new: `${ROOTS.DASHBOARD}/centre/new`,
     },
     region: {
-      root: `${ROOTS.DASHBOARD}/region`,
-      division: `${ROOTS.DASHBOARD}/devision/list`,
-      district: `${ROOTS.DASHBOARD}/district/list`,
+      root: `${ROOTS.DASHBOARD}/division`,
+      division: `${ROOTS.DASHBOARD}/division`,
+      district: `${ROOTS.DASHBOARD}/district`,
     },
   },
 };
