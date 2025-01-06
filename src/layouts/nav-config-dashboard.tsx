@@ -43,7 +43,10 @@ export const navData: NavSectionProps['data'] = [
         title: 'User',
         path: paths.dashboard.user.root,
         icon: ICONS.user,
-        children: [{ title: 'List', path: paths.dashboard.user.list }],
+        children: [
+          { title: 'List', path: paths.dashboard.user.list },
+          { title: 'New', path: paths.dashboard.user.new },
+        ],
       },
       {
         title: 'Student',
