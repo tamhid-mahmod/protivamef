@@ -19,7 +19,11 @@
     "re:build-npm": "npm run clean && npm install && npm run build",
     "tsc:dev": "bun dev & bun tsc:watch",
     "tsc:watch": "tsc --noEmit --watch",
-    "tsc:print": "npx tsc --showConfig"
+    "tsc:print": "npx tsc --showConfig",
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:reset": "npx prisma migrate reset",
+    "db:studio": "npx prisma studio"
   },
   "engines": {
     "node": "20.x"
@@ -41,6 +45,7 @@
     "@mui/x-data-grid": "^7.23.3",
     "@mui/x-date-pickers": "^7.23.3",
     "@mui/x-tree-view": "^7.23.2",
+    "@prisma/client": "^6.1.0",
     "@tiptap/core": "^2.11.0",
     "@tiptap/extension-code-block": "^2.11.0",
     "@tiptap/extension-code-block-lowlight": "^2.11.0",
@@ -96,6 +101,7 @@
     "eslint-plugin-unused-imports": "^4.1.4",
     "globals": "^15.13.0",
     "prettier": "^3.4.2",
+    "prisma": "^6.1.0",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.17.0"
   }
