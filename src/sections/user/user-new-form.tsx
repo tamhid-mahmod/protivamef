@@ -1,4 +1,3 @@
-import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,29 +18,9 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
-// ----------------------------------------------------------------------
+import { signUp } from 'src/auth/context';
 
-export type NewUserSchemaType = zod.infer<typeof NewUserSchema>;
-
-export const NewUserSchema = zod
-  .object({
-    name: zod.string().min(1, { message: 'Name is required!' }),
-    email: zod
-      .string()
-      .min(1, { message: 'Email is required!' })
-      .email({ message: 'Email must be a valid email address!' }),
-    password: zod
-      .string()
-      .min(1, { message: 'Password is required!' })
-      .min(6, { message: 'Password must be at least 6 characters!' }),
-    confirmPassword: zod.string().min(1, { message: 'Confirm password is required!' }),
-    // Not required
-    isVerified: zod.boolean(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match!',
-    path: ['confirmPassword'],
-  });
+import { NewUserSchema, type NewUserSchemaType } from './schema';
 
 // ----------------------------------------------------------------------
 
@@ -71,13 +50,19 @@ export function UserNewForm() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      toast.success('Create success!');
-      router.push(paths.dashboard.user.list);
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
+      const response = await signUp(data);
+
+      if ('success' in response) {
+        reset();
+        toast.success('Create success!');
+        router.push(paths.dashboard.user.list);
+      }
+
+      if ('error' in response) {
+        toast.error(response.error);
+      }
+    } catch {
+      toast.error('An unexpected error occurred.');
     }
   });
 
