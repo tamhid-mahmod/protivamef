@@ -1,5 +1,7 @@
 import { AuthLayout } from 'src/layouts/auth';
 
+import { GuestGuard } from 'src/auth/guard';
+
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -7,5 +9,9 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-  return <AuthLayout>{children}</AuthLayout>;
+  return (
+    <GuestGuard>
+      <AuthLayout>{children}</AuthLayout>
+    </GuestGuard>
+  );
 }

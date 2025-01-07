@@ -1,13 +1,10 @@
 'use client';
 
+import { getSession } from 'next-auth/react';
 import { useSetState } from 'minimal-shared/hooks';
 import { useMemo, useEffect, useCallback } from 'react';
 
-import axios, { endpoints } from 'src/lib/axios';
-
-import { JWT_STORAGE_KEY } from './constant';
 import { AuthContext } from './auth-context';
-import { setSession, isValidToken } from './utils';
 
 import type { AuthState } from '../types';
 
@@ -18,20 +15,17 @@ type Props = {
 };
 
 export function AuthProvider({ children }: Props) {
-  const { state, setState } = useSetState<AuthState>({ user: null, loading: true });
+  const { state, setState } = useSetState<AuthState>({
+    user: null,
+    loading: true,
+  });
 
   const checkUserSession = useCallback(async () => {
     try {
-      const accessToken = sessionStorage.getItem(JWT_STORAGE_KEY);
+      const session = await getSession();
 
-      if (accessToken && isValidToken(accessToken)) {
-        setSession(accessToken);
-
-        const res = await axios.get(endpoints.auth.me);
-
-        const { user } = res.data;
-
-        setState({ user: { ...user, accessToken }, loading: false });
+      if (session) {
+        setState({ user: { ...session, ...session?.user }, loading: false });
       } else {
         setState({ user: null, loading: false });
       }
@@ -54,7 +48,15 @@ export function AuthProvider({ children }: Props) {
 
   const memoizedValue = useMemo(
     () => ({
-      user: state.user ? { ...state.user, role: state.user?.role ?? 'admin' } : null,
+      user: state.user
+        ? {
+            ...state.user,
+            id: state.user?.id,
+            name: state.user?.name,
+            email: state.user?.email,
+            image: state.user?.image,
+          }
+        : null,
       checkUserSession,
       loading: status === 'loading',
       authenticated: status === 'authenticated',

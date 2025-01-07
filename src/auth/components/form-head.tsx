@@ -9,9 +9,10 @@ type FormHeadProps = BoxProps & {
   icon?: React.ReactNode;
   title: React.ReactNode;
   description?: React.ReactNode;
+  message?: React.ReactNode;
 };
 
-export function FormHead({ sx, icon, title, description, ...other }: FormHeadProps) {
+export function FormHead({ sx, icon, title, description, message, ...other }: FormHeadProps) {
   return (
     <>
       {icon && (
@@ -41,6 +42,8 @@ export function FormHead({ sx, icon, title, description, ...other }: FormHeadPro
             {description}
           </Typography>
         )}
+
+        {message && <Box mt={2}>{message}</Box>}
       </Box>
     </>
   );
