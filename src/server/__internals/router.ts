@@ -40,7 +40,7 @@ export const router = <T extends Record<string, OperationType<any, any>>>(obj: T
   });
 
   Object.entries(obj).forEach(([key, operation]) => {
-    const path = `/${key}` as const;
+    const path = `/${key}/` as const;
 
     const operationMiddlewares: MiddlewareHandler[] = operation.middlewares.map((middleware) => {
       const wrapperFunction = async (c: Context, next: Next) => {

@@ -14,7 +14,7 @@ const app = new Hono().basePath('/api').use(cors());
  * All routers added in /server/routers should be manually added here.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const appRouter = app.route('/division/', divisionRouter);
+const appRouter = app.route('/division', divisionRouter);
 
 // The handler Next.js uses to answer API requests
 export const httpHandler = handle(app);

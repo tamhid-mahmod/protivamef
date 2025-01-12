@@ -1,8 +1,8 @@
 import type { Context, TypedResponse } from 'hono';
+import type { StatusCode } from 'hono/utils/http-status';
 
 import { type z } from 'zod';
 import superjson from 'superjson';
-import { type StatusCode } from 'hono/utils/http-status';
 
 import type { Bindings } from '../env';
 import type { Middleware, QueryOperation, MutationOperation } from './types';

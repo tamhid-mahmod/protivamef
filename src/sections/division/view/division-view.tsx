@@ -6,7 +6,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { DivisionNewEditForm } from '../division-new-edit-form';
+import { DivisionNewForm } from '../division-new-form';
 
 // ----------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ export function DivisionView() {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <DivisionNewEditForm />
+      <DivisionNewForm />
     </DashboardContent>
   );
 }

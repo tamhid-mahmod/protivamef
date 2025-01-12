@@ -1,8 +1,6 @@
-import type { IDivisionItem } from 'src/types/division';
-
-import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -12,25 +10,18 @@ import LoadingButton from '@mui/lab/LoadingButton';
 
 import { useRouter } from 'src/routes/hooks';
 
+import { client } from 'src/lib/trpc';
+import { NewDivisionSchema, type NewDivisionSchemaType } from 'src/schemas/division';
+
 import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
-export type NewDivisionSchemaType = zod.infer<typeof NewDivisionSchema>;
-
-export const NewDivisionSchema = zod.object({
-  name: zod.string().min(1, { message: 'Division name is required!' }),
-});
-
-// ----------------------------------------------------------------------
-
-type Props = {
-  currentDivision?: IDivisionItem;
-};
-
-export function DivisionNewEditForm({ currentDivision }: Props) {
+export function DivisionNewForm() {
   const router = useRouter();
+
+  const queryClient = useQueryClient();
 
   const defaultValues: NewDivisionSchemaType = {
     name: '',
@@ -39,7 +30,6 @@ export function DivisionNewEditForm({ currentDivision }: Props) {
   const methods = useForm<NewDivisionSchemaType>({
     resolver: zodResolver(NewDivisionSchema),
     defaultValues,
-    values: currentDivision,
   });
 
   const {
@@ -48,16 +38,23 @@ export function DivisionNewEditForm({ currentDivision }: Props) {
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+  const { mutate: createDivision, isPending } = useMutation({
+    mutationFn: async (data: NewDivisionSchemaType) => {
+      await client.division.createDivision.$post(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-event-divisions'] });
+      toast.success('Division added!');
       reset();
-      toast.success(currentDivision ? 'Division updated!' : 'Division added!');
       router.refresh();
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    createDivision(data);
   });
 
   const renderDetails = () => (
@@ -86,9 +83,9 @@ export function DivisionNewEditForm({ currentDivision }: Props) {
         sx={{ alignSelf: 'end' }}
         type="submit"
         variant="contained"
-        loading={isSubmitting}
+        loading={isSubmitting || isPending}
       >
-        {!currentDivision ? 'Add' : 'Save changes'}
+        Add
       </LoadingButton>
     </Box>
   );
