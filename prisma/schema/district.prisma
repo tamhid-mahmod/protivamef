@@ -1,0 +1,12 @@
+model District {
+  id            String          @id @default(cuid())
+  divisionName  String
+  name          String          @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  division Division @relation(fields: [divisionName], references: [name], onDelete: Cascade)
+
+  @@unique([name, divisionName])
+}

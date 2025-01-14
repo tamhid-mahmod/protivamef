@@ -1,6 +1,7 @@
 model Division {
   id            String          @id @default(cuid())
   name          String          @unique
+  district      District[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

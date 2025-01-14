@@ -96,7 +96,8 @@ export function DivisionListView() {
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
             { name: 'Region', href: paths.dashboard.region.root },
-            { name: 'Division List' },
+            { name: 'Division', href: paths.dashboard.region.division },
+            { name: 'List' },
           ]}
           action={
             <Button

@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import { handle } from 'hono/vercel';
 
 import { divisionRouter } from './routers/division-router';
+import { districtRouter } from './routers/district-router';
 
 // ----------------------------------------------------------------------
 
@@ -14,7 +15,7 @@ const app = new Hono().basePath('/api').use(cors());
  * All routers added in /server/routers should be manually added here.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const appRouter = app.route('/division', divisionRouter);
+const appRouter = app.route('/division', divisionRouter).route('/district', districtRouter);
 
 // The handler Next.js uses to answer API requests
 export const httpHandler = handle(app);
