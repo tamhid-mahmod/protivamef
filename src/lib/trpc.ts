@@ -12,10 +12,10 @@ import { CONFIG } from 'src/global-config';
 export const baseClient = hc<AppType>(CONFIG.serverUrl, {
   fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
     const response = await fetch(input, { ...init, cache: 'no-store' });
-
     if (!response.ok) {
+      const { message } = await response.json();
       throw new HTTPException(response.status as ContentfulStatusCode, {
-        message: response.statusText,
+        message,
         res: response,
       });
     }

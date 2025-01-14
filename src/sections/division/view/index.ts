@@ -1,1 +1,1 @@
-export * from './division-view';
+export * from './division-list-view';
