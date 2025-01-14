@@ -1,9 +1,9 @@
 import { HTTPException } from 'hono/http-exception';
 
 import { db } from 'src/lib/db';
-import { NewDistrictSchema } from 'src/schemas/district';
 import { getDivisionByName } from 'src/services/division';
-import { getDivisionWithDistrictByName } from 'src/services/district';
+import { NewDistrictSchema, UpdateDistrictSchema } from 'src/schemas/district';
+import { getDistrictById, getDistrictWithDivisionByName } from 'src/services/district';
 
 import { router } from '../__internals/router';
 import { publicProcedure, privateProcedure } from '../procedures';
@@ -26,9 +26,9 @@ export const districtRouter = router({
       throw new HTTPException(404, { message: 'The requested division could not be found.' });
     }
 
-    const isDivisionWithDistrictExists = await getDivisionWithDistrictByName(divisionName, name);
+    const isDistrictWithDivisionExists = await getDistrictWithDivisionByName(divisionName, name);
 
-    if (isDivisionWithDistrictExists) {
+    if (isDistrictWithDivisionExists) {
       throw new HTTPException(409, {
         message:
           'A district with this name already exists with the same division. Please choose a different name or division.',
@@ -43,5 +43,39 @@ export const districtRouter = router({
     });
 
     return c.json({ newDistrict });
+  }),
+
+  updateDistrict: privateProcedure.input(UpdateDistrictSchema).mutation(async ({ c, input }) => {
+    const { districtId, name } = input;
+
+    const district = await getDistrictById(districtId);
+
+    if (!district) {
+      throw new HTTPException(404, { message: 'The requested district could not be found.' });
+    }
+
+    const isDistrictWithDivisionExists = await getDistrictWithDivisionByName(
+      district.divisionName,
+      name
+    );
+
+    if (isDistrictWithDivisionExists) {
+      throw new HTTPException(409, {
+        message:
+          'A district with this name already exists with the same division. Please choose a different name or division.',
+      });
+    }
+
+    await db.district.update({
+      where: {
+        id: districtId,
+        divisionName: district.divisionName,
+      },
+      data: {
+        ...(name && { name }),
+      },
+    });
+
+    return c.json({ success: true });
   }),
 });

@@ -5,7 +5,6 @@ import { useBoolean, usePopover } from 'minimal-shared/hooks';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
@@ -19,6 +18,8 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
 
+import { DistrictNewEditForm } from './district-new-edit-form';
+
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -31,7 +32,11 @@ type Props = {
 export function DistrictTableRow({ row, selected, onSelectRow, onDeleteRow }: Props) {
   const menuActions = usePopover();
   const confirmDialog = useBoolean();
-  const quickEditForm = useBoolean();
+  const editForm = useBoolean();
+
+  const renderEditForm = () => (
+    <DistrictNewEditForm currentDistrict={row} open={editForm.value} onClose={editForm.onFalse} />
+  );
 
   const renderMenuActions = () => (
     <CustomPopover
@@ -42,7 +47,12 @@ export function DistrictTableRow({ row, selected, onSelectRow, onDeleteRow }: Pr
     >
       <MenuList>
         <li>
-          <MenuItem onClick={() => menuActions.onClose()}>
+          <MenuItem
+            onClick={() => {
+              editForm.onTrue();
+              menuActions.onClose();
+            }}
+          >
             <Iconify icon="solar:pen-bold" />
             Edit
           </MenuItem>
@@ -107,26 +117,13 @@ export function DistrictTableRow({ row, selected, onSelectRow, onDeleteRow }: Pr
         </TableCell>
 
         <TableCell>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Tooltip title="Quick Edit" placement="top" arrow>
-              <IconButton
-                color={quickEditForm.value ? 'inherit' : 'default'}
-                onClick={quickEditForm.onTrue}
-              >
-                <Iconify icon="solar:pen-bold" />
-              </IconButton>
-            </Tooltip>
-
-            <IconButton
-              color={menuActions.open ? 'inherit' : 'default'}
-              onClick={menuActions.onOpen}
-            >
-              <Iconify icon="eva:more-vertical-fill" />
-            </IconButton>
-          </Box>
+          <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
+            <Iconify icon="eva:more-vertical-fill" />
+          </IconButton>
         </TableCell>
       </TableRow>
 
+      {renderEditForm()}
       {renderMenuActions()}
       {renderConfirmDialog()}
     </>

@@ -133,7 +133,7 @@ export function DistrictListView() {
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="Division List"
+          heading="District List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
             { name: 'Region', href: paths.dashboard.region.root },

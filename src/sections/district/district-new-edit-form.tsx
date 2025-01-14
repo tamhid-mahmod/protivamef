@@ -17,7 +17,11 @@ import { useRouter } from 'src/routes/hooks';
 
 import { client } from 'src/lib/trpc';
 import { useGetDivisions } from 'src/actions/division';
-import { NewDistrictSchema, type NewDistrictSchemaType } from 'src/schemas/district';
+import {
+  NewDistrictSchema,
+  type NewDistrictSchemaType,
+  type UpdateDistrictSchemaType,
+} from 'src/schemas/district';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
@@ -55,8 +59,12 @@ export function DistrictNewEditForm({ open, onClose, currentDistrict }: Props) {
   } = methods;
 
   const { mutate: handleDistrict, isPending } = useMutation({
-    mutationFn: async (data: NewDistrictSchemaType) => {
-      await client.district.createDistrict.$post(data);
+    mutationFn: async (data: UpdateDistrictSchemaType | NewDistrictSchemaType) => {
+      if ('districtId' in data && currentDistrict) {
+        await client.district.updateDistrict.$post(data);
+      } else {
+        await client.district.createDistrict.$post(data);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['districts'] });
@@ -73,7 +81,11 @@ export function DistrictNewEditForm({ open, onClose, currentDistrict }: Props) {
   });
 
   const onSubmit = handleSubmit(async (data) => {
-    handleDistrict(data);
+    if (currentDistrict) {
+      handleDistrict({ districtId: currentDistrict.id, ...data });
+    } else {
+      handleDistrict(data);
+    }
   });
 
   return (
@@ -100,7 +112,7 @@ export function DistrictNewEditForm({ open, onClose, currentDistrict }: Props) {
                     {option}
                   </li>
                 )}
-                disabled={divisionsLoading}
+                disabled={divisionsLoading || !!currentDistrict}
               />
             </Stack>
 
