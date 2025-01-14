@@ -1,3 +1,14 @@
+enum UserStatus {
+  PENDING
+  ACTIVE
+  BANNED
+}
+
+enum UserRole {
+  ADMIN
+  ADMIN_MODERATOR
+}
+
 model User {
   id            String          @id @default(cuid())
   name          String?
@@ -5,6 +16,8 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
+  status        UserStatus      @default(PENDING)
+  role          UserRole        @default(ADMIN)
   accounts      Account[]
 
   createdAt DateTime @default(now())
