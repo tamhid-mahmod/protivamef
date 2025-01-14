@@ -5,6 +5,7 @@ import type { IDistrictItem, IDistrictTableFilters } from 'src/types/district';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -16,6 +17,7 @@ import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 
+import { client } from 'src/lib/trpc';
 import { useGetDistricts } from 'src/actions/district';
 import { useGetDivisions } from 'src/actions/division';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -60,6 +62,7 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 
 export function DistrictListView() {
   const table = useTable();
+  const queryClient = useQueryClient();
 
   const formDialog = useBoolean();
   const confirmDialog = useBoolean();
@@ -89,6 +92,16 @@ export function DistrictListView() {
   const canReset = !!currentFilters.name || currentFilters.divisionName.length > 0;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
+  const { mutate: handleDeleteRow } = useMutation({
+    mutationFn: async (districtId: string) => {
+      await client.district.deleteDistrict.$post({ districtId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['districts'] });
+      toast.success('District deleted!');
+    },
+  });
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
@@ -217,7 +230,7 @@ export function DistrictListView() {
                         row={row}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => {}}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
                       />
                     ))}
 

@@ -1,3 +1,4 @@
+import { z as zod } from 'zod';
 import { HTTPException } from 'hono/http-exception';
 
 import { db } from 'src/lib/db';
@@ -78,4 +79,22 @@ export const districtRouter = router({
 
     return c.json({ success: true });
   }),
+
+  deleteDistrict: privateProcedure
+    .input(zod.object({ districtId: zod.string() }))
+    .mutation(async ({ c, input }) => {
+      const { districtId } = input;
+
+      const district = await getDistrictById(districtId);
+
+      if (!district) {
+        throw new HTTPException(404, { message: 'The requested district could not be found.' });
+      }
+
+      await db.district.delete({
+        where: { id: district.id },
+      });
+
+      return c.json({ success: true });
+    }),
 });
