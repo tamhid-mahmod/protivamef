@@ -1,4 +1,4 @@
-import type { IDistrictItem } from 'src/types/district';
+import type { IDistrictsWithDivisionItem } from 'src/types/district';
 
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
@@ -23,7 +23,7 @@ import { DistrictNewEditForm } from './district-new-edit-form';
 // ----------------------------------------------------------------------
 
 type Props = {
-  row: IDistrictItem;
+  row: IDistrictsWithDivisionItem;
   selected: boolean;
   onSelectRow: () => void;
   onDeleteRow: () => void;
@@ -46,17 +46,15 @@ export function DistrictTableRow({ row, selected, onSelectRow, onDeleteRow }: Pr
       slotProps={{ arrow: { placement: 'right-top' } }}
     >
       <MenuList>
-        <li>
-          <MenuItem
-            onClick={() => {
-              editForm.onTrue();
-              menuActions.onClose();
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-        </li>
+        <MenuItem
+          onClick={() => {
+            editForm.onTrue();
+            menuActions.onClose();
+          }}
+        >
+          <Iconify icon="solar:pen-bold" />
+          Edit
+        </MenuItem>
 
         <MenuItem
           onClick={() => {
@@ -102,7 +100,7 @@ export function DistrictTableRow({ row, selected, onSelectRow, onDeleteRow }: Pr
 
         <TableCell>{row.name}</TableCell>
 
-        <TableCell>{row.divisionName}</TableCell>
+        <TableCell>{row.division.name}</TableCell>
 
         <TableCell>{fDate(row.createdAt)}</TableCell>
 

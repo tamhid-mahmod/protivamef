@@ -2,9 +2,9 @@ import { db } from 'src/lib/db';
 
 // ----------------------------------------------------------------------
 
-export const getDistrictWithDivisionByName = async (divisionName: string, name: string) => {
+export const getDistrictWithDivisionId = async (divisionId: string, name: string) => {
   try {
-    const district = await db.district.findFirst({ where: { divisionName, name } });
+    const district = await db.district.findFirst({ where: { divisionId, name } });
 
     return district;
   } catch {

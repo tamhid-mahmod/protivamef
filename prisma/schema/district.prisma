@@ -1,12 +1,13 @@
 model District {
   id            String          @id @default(cuid())
-  divisionName  String
   name          String
+  divisionId    String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  division Division @relation(fields: [divisionName], references: [name], onDelete: Cascade)
+  division Division @relation(fields: [divisionId], references: [id], onDelete: Cascade)
 
-  @@unique([name, divisionName])
+  @@index([divisionId])
+  @@unique([name, divisionId])
 }

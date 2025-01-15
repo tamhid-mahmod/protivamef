@@ -1,4 +1,4 @@
-import type { IDistrictItem } from 'src/types/district';
+import type { IDistrictsWithDivisionItem } from 'src/types/district';
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,7 +31,7 @@ import { Form, Field } from 'src/components/hook-form';
 type Props = {
   open: boolean;
   onClose: () => void;
-  currentDistrict?: IDistrictItem;
+  currentDistrict?: IDistrictsWithDivisionItem;
 };
 
 export function DistrictNewEditForm({ open, onClose, currentDistrict }: Props) {
@@ -42,7 +42,7 @@ export function DistrictNewEditForm({ open, onClose, currentDistrict }: Props) {
   const queryClient = useQueryClient();
 
   const defaultValues: NewDistrictSchemaType = {
-    divisionName: '',
+    division: { id: '', name: '' },
     name: '',
   };
 
@@ -103,13 +103,14 @@ export function DistrictNewEditForm({ open, onClose, currentDistrict }: Props) {
             <Stack spacing={1.5}>
               <Typography variant="subtitle2">Division name</Typography>
               <Field.Autocomplete
-                name="divisionName"
+                name="division"
                 autoHighlight
-                options={divisions.map(({ name }) => name)}
-                getOptionLabel={(option) => option}
+                options={divisions}
+                getOptionLabel={(option) => option.name}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 renderOption={(props, option) => (
-                  <li {...props} key={option}>
-                    {option}
+                  <li {...props} key={option.id}>
+                    {option.name}
                   </li>
                 )}
                 disabled={divisionsLoading || !!currentDistrict}

@@ -9,7 +9,11 @@ export type UpdateDistrictSchemaType = zod.infer<typeof UpdateDistrictSchema>;
 export type DeleteDistrictsSchemaType = zod.infer<typeof DeleteDistrictsSchema>;
 
 export const NewDistrictSchema = zod.object({
-  divisionName: zod.string().min(1, { message: 'Division name is required!' }),
+  division: zod
+    .custom<{ id: string; name: string }>()
+    .refine((data) => data.id !== '' && data.name !== '', {
+      message: 'Division is required!',
+    }),
   name: zod.string().min(1, { message: 'District name is required!' }),
 });
 

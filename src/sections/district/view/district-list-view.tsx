@@ -1,7 +1,7 @@
 'use client';
 
 import type { TableHeadCellProps } from 'src/components/table';
-import type { IDistrictItem, IDistrictTableFilters } from 'src/types/district';
+import type { IDistrictTableFilters, IDistrictsWithDivisionItem } from 'src/types/district';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
@@ -18,9 +18,9 @@ import IconButton from '@mui/material/IconButton';
 import { paths } from 'src/routes/paths';
 
 import { client } from 'src/lib/trpc';
-import { useGetDistricts } from 'src/actions/district';
 import { useGetDivisions } from 'src/actions/division';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useGetDistrictsWithDivision } from 'src/actions/district';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -46,10 +46,6 @@ import { DistrictTableFiltersResult } from '../district-table-filter-result';
 
 // ----------------------------------------------------------------------
 
-export type ApiResponse = {
-  divisions: IDistrictItem[];
-};
-
 const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'name', label: 'District name' },
   { id: 'divisionName', label: 'Division name', width: 180 },
@@ -68,18 +64,18 @@ export function DistrictListView() {
   const confirmDialog = useBoolean();
 
   const { divisions } = useGetDivisions();
-  const { districts } = useGetDistricts();
+  const { districtsWithDivision } = useGetDistrictsWithDivision();
 
-  const [tableData, setTableData] = useState<IDistrictItem[]>(districts);
+  const [tableData, setTableData] = useState<IDistrictsWithDivisionItem[]>(districtsWithDivision);
 
   const filters = useSetState<IDistrictTableFilters>({ name: '', divisionName: [] });
   const { state: currentFilters } = filters;
 
   useEffect(() => {
-    if (districts.length) {
-      setTableData(districts);
+    if (districtsWithDivision.length) {
+      setTableData(districtsWithDivision);
     }
-  }, [districts]);
+  }, [districtsWithDivision]);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -290,7 +286,7 @@ export function DistrictListView() {
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: IDistrictItem[];
+  inputData: IDistrictsWithDivisionItem[];
   filters: IDistrictTableFilters;
   comparator: (a: any, b: any) => number;
 };
@@ -315,7 +311,7 @@ function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
   }
 
   if (divisionName.length) {
-    inputData = inputData.filter((district) => divisionName.includes(district.divisionName));
+    inputData = inputData.filter((district) => divisionName.includes(district.division.name));
   }
 
   return inputData;

@@ -1,4 +1,4 @@
-import type { IDistrictItem } from 'src/types/district';
+import type { IDistrictItem, IDistrictsWithDivisionItem } from 'src/types/district';
 
 import { useMemo } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
@@ -34,6 +34,41 @@ export function useGetDistricts() {
       districtsEmpty: !isLoading && !isValidating && districtsData?.districts.length,
     }),
     [districtsData, error, isLoading, isValidating]
+  );
+
+  return memoizedValue;
+}
+
+// ----------------------------------------------------------------------
+
+type DistrictsWithDivisionData = {
+  districts: IDistrictsWithDivisionItem[];
+};
+
+export function useGetDistrictsWithDivision() {
+  const {
+    data: districtsWithDivisionData,
+    isPending: isLoading,
+    error,
+    isFetching: isValidating,
+  }: UseQueryResult<DistrictsWithDivisionData> = useQuery({
+    queryKey: ['districts'],
+    queryFn: async () => {
+      const res = await client.district.getDistrictsWithDivision.$get();
+      return await res.json();
+    },
+  });
+
+  const memoizedValue = useMemo(
+    () => ({
+      districtsLoading: isLoading,
+      districtsWithDivision: districtsWithDivisionData?.districts || [],
+      districtsWithDivisionError: error,
+      districtsWithDivisionValidating: isValidating,
+      districtsWithDivisionEmpty:
+        !isLoading && !isValidating && districtsWithDivisionData?.districts.length,
+    }),
+    [districtsWithDivisionData, error, isLoading, isValidating]
   );
 
   return memoizedValue;

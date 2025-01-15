@@ -2,8 +2,8 @@ import { z as zod } from 'zod';
 import { HTTPException } from 'hono/http-exception';
 
 import { db } from 'src/lib/db';
-import { getDivisionByName } from 'src/services/division';
-import { getDistrictById, getDistrictWithDivisionByName } from 'src/services/district';
+import { getDivisionById } from 'src/services/division';
+import { getDistrictById, getDistrictWithDivisionId } from 'src/services/district';
 import {
   NewDistrictSchema,
   UpdateDistrictSchema,
@@ -17,23 +17,36 @@ import { publicProcedure, privateProcedure } from '../procedures';
 
 export const districtRouter = router({
   getDistricts: publicProcedure.query(async ({ c }) => {
-    const districts = await db.district.findMany({ orderBy: { updatedAt: 'desc' } });
+    const districts = await db.district.findMany({
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    return c.superjson({ districts });
+  }),
+
+  getDistrictsWithDivision: publicProcedure.query(async ({ c }) => {
+    const districts = await db.district.findMany({
+      include: {
+        division: true,
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
 
     return c.superjson({ districts });
   }),
 
   createDistrict: privateProcedure.input(NewDistrictSchema).mutation(async ({ c, input }) => {
-    const { divisionName, name } = input;
+    const { division: inputDevision, name } = input;
 
-    const isDivisionExists = await getDivisionByName(divisionName);
+    const division = await getDivisionById(inputDevision.id);
 
-    if (!isDivisionExists) {
+    if (!division) {
       throw new HTTPException(404, { message: 'The requested division could not be found.' });
     }
 
-    const isDistrictWithDivisionExists = await getDistrictWithDivisionByName(divisionName, name);
+    const districtWithDivision = await getDistrictWithDivisionId(division.id, name);
 
-    if (isDistrictWithDivisionExists) {
+    if (districtWithDivision) {
       throw new HTTPException(409, {
         message:
           'A district with this name already exists with the same division. Please choose a different name or division.',
@@ -42,7 +55,7 @@ export const districtRouter = router({
 
     const newDistrict = await db.district.create({
       data: {
-        divisionName,
+        divisionId: division.id,
         name,
       },
     });
@@ -59,12 +72,9 @@ export const districtRouter = router({
       throw new HTTPException(404, { message: 'The requested district could not be found.' });
     }
 
-    const isDistrictWithDivisionExists = await getDistrictWithDivisionByName(
-      district.divisionName,
-      name
-    );
+    const districtWithDivision = await getDistrictWithDivisionId(district.id, name);
 
-    if (isDistrictWithDivisionExists) {
+    if (districtWithDivision) {
       throw new HTTPException(409, {
         message:
           'A district with this name already exists with the same division. Please choose a different name or division.',
@@ -74,7 +84,7 @@ export const districtRouter = router({
     await db.district.update({
       where: {
         id: districtId,
-        divisionName: district.divisionName,
+        divisionId: district.divisionId,
       },
       data: {
         ...(name && { name }),

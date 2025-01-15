@@ -1,4 +1,5 @@
 import type { IDateValue } from './common';
+import type { IDivisionItem } from './division';
 
 // ----------------------------------------------------------------------
 
@@ -9,8 +10,12 @@ export type IDistrictTableFilters = {
 
 export type IDistrictItem = {
   id: string;
-  divisionName: string;
+  divisionId: string;
   name: string;
   createdAt: IDateValue;
   updatedAt: IDateValue;
+};
+
+export type IDistrictsWithDivisionItem = IDistrictItem & {
+  division: IDivisionItem;
 };
