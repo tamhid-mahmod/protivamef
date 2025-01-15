@@ -101,17 +101,41 @@ export function DistrictListView() {
       queryClient.invalidateQueries({ queryKey: ['districts'] });
       toast.success('District deleted!');
     },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const { mutate: handleDeleteDistrictsRows } = useMutation({
+    mutationFn: async (districtIds: [string, ...string[]]) => {
+      await client.district.deleteDistricts.$post({ districtIds });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['districts'] });
+      toast.success('All selected districts are deleted!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
 
-    toast.success('Delete success!');
+    const deleteIds = tableData
+      .filter((row) => table.selected.includes(row.id))
+      .map((row) => row.id);
+
+    if (deleteIds.length > 0) {
+      handleDeleteDistrictsRows(deleteIds as [string, ...string[]]); // Ensure it's non-empty
+    } else {
+      toast.error('No districts selected for deletion.');
+    }
 
     setTableData(deleteRows);
 
     table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  }, [dataFiltered.length, dataInPage.length, table, tableData, handleDeleteDistrictsRows]);
 
   const renderConfirmDialog = () => (
     <ConfirmDialog

@@ -3,8 +3,12 @@ import { HTTPException } from 'hono/http-exception';
 
 import { db } from 'src/lib/db';
 import { getDivisionByName } from 'src/services/division';
-import { NewDistrictSchema, UpdateDistrictSchema } from 'src/schemas/district';
 import { getDistrictById, getDistrictWithDivisionByName } from 'src/services/district';
+import {
+  NewDistrictSchema,
+  UpdateDistrictSchema,
+  DeleteDistrictsSchema,
+} from 'src/schemas/district';
 
 import { router } from '../__internals/router';
 import { publicProcedure, privateProcedure } from '../procedures';
@@ -97,4 +101,24 @@ export const districtRouter = router({
 
       return c.json({ success: true });
     }),
+
+  deleteDistricts: privateProcedure.input(DeleteDistrictsSchema).mutation(async ({ c, input }) => {
+    const { districtIds } = input;
+
+    const districts = await db.district.findMany({
+      where: {
+        id: { in: districtIds },
+      },
+    });
+
+    if (districts.length !== districtIds.length) {
+      throw new HTTPException(404, { message: 'One or more districts could not be found.' });
+    }
+
+    await db.district.deleteMany({
+      where: { id: { in: districtIds } },
+    });
+
+    return c.json({ success: true });
+  }),
 });
