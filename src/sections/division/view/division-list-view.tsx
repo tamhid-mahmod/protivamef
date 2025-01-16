@@ -76,6 +76,9 @@ export function DivisionListView() {
       queryClient.invalidateQueries({ queryKey: ['divisions'] });
       toast.success('Division deleted!');
     },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
 
   const headCells: TableHeadCellProps[] = [

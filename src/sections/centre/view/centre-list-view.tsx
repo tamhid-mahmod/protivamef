@@ -6,6 +6,7 @@ import type { ICentreTableFilters, ICentresWithDivisionAndDistrict } from 'src/t
 import { varAlpha } from 'minimal-shared/utils';
 import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -20,6 +21,7 @@ import IconButton from '@mui/material/IconButton';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { client } from 'src/lib/trpc';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useGetDivisionsWithDistricts } from 'src/actions/division';
 import { useGetCentresWithDivisionAndDistrict } from 'src/actions/centre';
@@ -69,6 +71,7 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 
 export function CentreListView() {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
+  const queryClient = useQueryClient();
 
   const confirmDialog = useBoolean();
 
@@ -111,28 +114,49 @@ export function CentreListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+  const { mutate: handleDeleteRow } = useMutation({
+    mutationFn: async (centreId: string) => {
+      await client.centre.deleteCentre.$post({ centreId });
     },
-    [dataInPage.length, table, tableData]
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['centres'] });
+      toast.success('Centre deleted!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const { mutate: handleDeleteCentreRows } = useMutation({
+    mutationFn: async (centreIds: [string, ...string[]]) => {
+      await client.centre.deleteCentres.$post({ centreIds });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['centres'] });
+      toast.success('All selected centres are deleted!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
 
-    toast.success('Delete success!');
+    const deleteIds = tableData
+      .filter((row) => table.selected.includes(row.id))
+      .map((row) => row.id);
+
+    if (deleteIds.length > 0) {
+      handleDeleteCentreRows(deleteIds as [string, ...string[]]);
+    } else {
+      toast.error('No centres selected for deletion.');
+    }
 
     setTableData(deleteRows);
 
     table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  }, [dataFiltered.length, dataInPage.length, table, tableData, handleDeleteCentreRows]);
 
   const handleFilterPublish = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {

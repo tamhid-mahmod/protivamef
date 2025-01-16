@@ -29,3 +29,21 @@ export const NewCentreSchema = zod.object({
   districtId: zod.string().min(1, { message: 'District is required!' }),
   publish: zod.enum(['draft', 'published']),
 });
+
+// ----------------------------------------------------------------------
+
+export type DeleteCentreSchemaType = zod.infer<typeof DeleteCentreSchema>;
+
+export const DeleteCentreSchema = zod.object({
+  centreId: zod.string().min(1, { message: 'Centre id is required!' }),
+});
+
+// ----------------------------------------------------------------------
+
+export type DeleteCentresSchemaType = zod.infer<typeof DeleteCentresSchema>;
+
+export const DeleteCentresSchema = zod.object({
+  centreIds: zod
+    .array(zod.string().min(1, { message: 'Centres id is required!' }))
+    .nonempty({ message: 'At least one ID is required!' }),
+});

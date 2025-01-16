@@ -21,8 +21,8 @@ export type ICentreItem = {
   divisionId: string;
   districtId: string;
   publish: 'draft' | 'published';
-  createdAt: IDateValue;
-  updatedAt: IDateValue;
+  createdAt: IDateValue | Date;
+  updatedAt: IDateValue | Date;
 };
 
 export type ICentresWithDivisionAndDistrict = ICentreItem & {

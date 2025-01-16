@@ -1,8 +1,8 @@
 import { HTTPException } from 'hono/http-exception';
 
 import { db } from 'src/lib/db';
-import { NewCentreSchema } from 'src/schemas/centre';
-import { isDataConflict } from 'src/services/centre';
+import { getCentreById, isDataConflict } from 'src/services/centre';
+import { NewCentreSchema, DeleteCentreSchema, DeleteCentresSchema } from 'src/schemas/centre';
 
 import { router } from '../__internals/router';
 import { privateProcedure } from '../procedures';
@@ -48,6 +48,54 @@ export const centreRouter = router({
       return c.json({ success: true, data: newCentre }, 201);
     } catch (error) {
       console.error('Error creating centre:', error);
+      throw error;
+    }
+  }),
+
+  deleteCentre: privateProcedure.input(DeleteCentreSchema).mutation(async ({ c, input }) => {
+    const { centreId } = input;
+
+    try {
+      const existingCentre = await getCentreById(centreId);
+
+      if (!existingCentre) {
+        throw new HTTPException(404, { message: 'The resource to be deleted does not exist.' });
+      }
+
+      await db.centre.delete({
+        where: {
+          id: existingCentre.id,
+        },
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting centre:', error);
+      throw error;
+    }
+  }),
+
+  deleteCentres: privateProcedure.input(DeleteCentresSchema).mutation(async ({ c, input }) => {
+    const { centreIds } = input;
+
+    try {
+      const existingCentres = await db.district.findMany({
+        where: {
+          id: { in: centreIds },
+        },
+      });
+
+      if (!existingCentres) {
+        throw new HTTPException(404, { message: 'The resource to be deleted does not exist.' });
+      }
+
+      await db.centre.deleteMany({
+        where: { id: { in: centreIds } },
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting centres:', error);
       throw error;
     }
   }),

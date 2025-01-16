@@ -11,14 +11,14 @@ model Centre {
   phoneNumber   String
   address       String
   publish       CentrePublish   @default(draft)
-  divisionId    String?
-  districtId    String?
+  divisionId    String
+  districtId    String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  division Division? @relation(fields: [divisionId], references: [id], onDelete: SetNull)
-  district District? @relation(fields: [districtId], references: [id], onDelete: SetNull)
+  division Division? @relation(fields: [divisionId], references: [id])
+  district District? @relation(fields: [districtId], references: [id])
 
   @@index([divisionId, districtId])
   @@unique([code, email])

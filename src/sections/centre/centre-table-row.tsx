@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
@@ -118,7 +117,6 @@ export function CentreTableRow({ row, selected, onSelectRow, onDeleteRow, editHr
           </MenuItem>
         </li>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
         <MenuItem
           onClick={() => {
             confirmDialog.onTrue();
