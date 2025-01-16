@@ -1,8 +1,9 @@
-import type { ICentreItem } from 'src/types/centre';
+import type { ICentresWithDivisionAndDistrict } from 'src/types/centre';
 
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
@@ -26,7 +27,7 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = {
-  row: ICentreItem;
+  row: ICentresWithDivisionAndDistrict;
   selected: boolean;
   editHref: string;
   onSelectRow: () => void;
@@ -50,8 +51,6 @@ export function CentreTableRow({ row, selected, onSelectRow, onDeleteRow, editHr
         />
       </TableCell>
 
-      <TableCell>{row.code}</TableCell>
-
       <TableCell>
         <Stack sx={{ typography: 'body2', flex: '1 1 auto', alignItems: 'flex-start' }}>
           <Box component="span">{row.name}</Box>
@@ -60,6 +59,10 @@ export function CentreTableRow({ row, selected, onSelectRow, onDeleteRow, editHr
             {row.email}
           </Box>
         </Stack>
+      </TableCell>
+
+      <TableCell>
+        <Chip variant="outlined" size="small" color="primary" label={row.code} />
       </TableCell>
 
       <TableCell>
@@ -81,6 +84,10 @@ export function CentreTableRow({ row, selected, onSelectRow, onDeleteRow, editHr
       </TableCell>
 
       <TableCell>{row.phoneNumber}</TableCell>
+
+      <TableCell>{row.division.name}</TableCell>
+
+      <TableCell>{row.district.name}</TableCell>
 
       <TableCell>
         <Label variant="soft" color={(row.publish === 'published' && 'info') || 'default'}>
@@ -104,13 +111,6 @@ export function CentreTableRow({ row, selected, onSelectRow, onDeleteRow, editHr
       slotProps={{ arrow: { placement: 'right-top' } }}
     >
       <MenuList>
-        <li>
-          <MenuItem onClick={menuActions.onClose}>
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-        </li>
-
         <li>
           <MenuItem component={RouterLink} href={editHref} onClick={menuActions.onClose}>
             <Iconify icon="solar:pen-bold" />

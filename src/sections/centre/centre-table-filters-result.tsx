@@ -28,6 +28,26 @@ export function CentreTableFiltersResult({ filters, totalResults, onResetPage, s
     updateFilters({ publish: 'all' });
   }, [onResetPage, updateFilters]);
 
+  const handleRemoveDivision = useCallback(
+    (inputValue: string) => {
+      const newValue = currentFilters.divisions.filter((item) => item !== inputValue);
+
+      onResetPage();
+      updateFilters({ divisions: newValue });
+    },
+    [onResetPage, updateFilters, currentFilters.divisions]
+  );
+
+  const handleRemoveDistrict = useCallback(
+    (inputValue: string) => {
+      const newValue = currentFilters.districts.filter((item) => item !== inputValue);
+
+      onResetPage();
+      updateFilters({ districts: newValue });
+    },
+    [onResetPage, updateFilters, currentFilters.districts]
+  );
+
   const handleReset = useCallback(() => {
     onResetPage();
     resetFilters();
@@ -42,6 +62,28 @@ export function CentreTableFiltersResult({ filters, totalResults, onResetPage, s
           onDelete={handleRemovePublish}
           sx={{ textTransform: 'capitalize' }}
         />
+      </FiltersBlock>
+
+      <FiltersBlock label="Division:" isShow={!!currentFilters.divisions.length}>
+        {currentFilters.divisions.map((item) => (
+          <Chip
+            {...chipProps}
+            key={item}
+            label={item}
+            onDelete={() => handleRemoveDivision(item)}
+          />
+        ))}
+      </FiltersBlock>
+
+      <FiltersBlock label="District:" isShow={!!currentFilters.districts.length}>
+        {currentFilters.districts.map((item) => (
+          <Chip
+            {...chipProps}
+            key={item}
+            label={item}
+            onDelete={() => handleRemoveDistrict(item)}
+          />
+        ))}
       </FiltersBlock>
 
       <FiltersBlock label="Keyword:" isShow={!!currentFilters.name}>

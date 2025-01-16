@@ -9,6 +9,17 @@ import { privateProcedure } from '../procedures';
 // ----------------------------------------------------------------------
 
 export const centreRouter = router({
+  getCentresWithDivisionAndDistrict: privateProcedure.query(async ({ c }) => {
+    const centres = await db.centre.findMany({
+      include: {
+        division: true,
+        district: true,
+      },
+    });
+
+    return c.superjson({ centres });
+  }),
+
   createCentre: privateProcedure.input(NewCentreSchema).mutation(async ({ c, input }) => {
     const { name, code, email, phoneNumber, address, divisionId, districtId, publish } = input;
 

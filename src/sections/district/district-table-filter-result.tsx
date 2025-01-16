@@ -23,7 +23,7 @@ export function DistrictTableFiltersResult({ filters, onResetPage, totalResults,
     updateFilters({ name: '' });
   }, [onResetPage, updateFilters]);
 
-  const handleRemoveDivisionName = useCallback(
+  const handleRemoveDivision = useCallback(
     (inputValue: string) => {
       const newValue = currentFilters.divisionName.filter((item) => item !== inputValue);
 
@@ -40,13 +40,13 @@ export function DistrictTableFiltersResult({ filters, onResetPage, totalResults,
 
   return (
     <FiltersResult totalResults={totalResults} onReset={handleReset} sx={sx}>
-      <FiltersBlock label="Division name:" isShow={!!currentFilters.divisionName.length}>
+      <FiltersBlock label="Division:" isShow={!!currentFilters.divisionName.length}>
         {currentFilters.divisionName.map((item) => (
           <Chip
             {...chipProps}
             key={item}
             label={item}
-            onDelete={() => handleRemoveDivisionName(item)}
+            onDelete={() => handleRemoveDivision(item)}
           />
         ))}
       </FiltersBlock>

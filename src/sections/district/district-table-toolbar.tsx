@@ -43,7 +43,7 @@ export function DistrictTableToolbar({ filters, options, onResetPage }: Props) {
     [onResetPage, updateFilters]
   );
 
-  const handleFilterRole = useCallback(
+  const handleFilterDivision = useCallback(
     (event: SelectChangeEvent<string[]>) => {
       const newValue =
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value;
@@ -93,14 +93,14 @@ export function DistrictTableToolbar({ filters, options, onResetPage }: Props) {
         }}
       >
         <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-          <InputLabel htmlFor="filter-role-select">Division name</InputLabel>
+          <InputLabel htmlFor="filter-division-select">Division name</InputLabel>
           <Select
             multiple
             value={currentFilters.divisionName}
-            onChange={handleFilterRole}
+            onChange={handleFilterDivision}
             input={<OutlinedInput label="Division name" />}
             renderValue={(selected) => selected.map((value) => value).join(', ')}
-            inputProps={{ id: 'filter-role-select' }}
+            inputProps={{ id: 'filter-division-select' }}
             MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
           >
             {options.divisionNames.map((option) => (

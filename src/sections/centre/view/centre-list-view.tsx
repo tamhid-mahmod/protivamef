@@ -1,10 +1,10 @@
 'use client';
 
 import type { TableHeadCellProps } from 'src/components/table';
-import type { ICentreItem, ICentreTableFilters } from 'src/types/centre';
+import type { ICentreTableFilters, ICentresWithDivisionAndDistrict } from 'src/types/centre';
 
-import { useState, useCallback } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
+import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Tab from '@mui/material/Tab';
@@ -20,8 +20,9 @@ import IconButton from '@mui/material/IconButton';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useGetCentres } from 'src/actions/centre';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useGetDivisionsWithDistricts } from 'src/actions/division';
+import { useGetCentresWithDivisionAndDistrict } from 'src/actions/centre';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
@@ -54,11 +55,13 @@ const STATUS_OPTIONS = [
 ];
 
 const TABLE_HEAD: TableHeadCellProps[] = [
-  { id: 'code', label: 'Code', width: 88 },
   { id: 'name', label: 'Centre' },
-  { id: 'createdAt', label: 'Date', width: 140 },
-  { id: 'contact', label: 'Contact', width: 180 },
-  { id: 'status', label: 'Status', width: 110 },
+  { id: 'code', label: 'Code' },
+  { id: 'createdAt', label: 'Created At', width: 140 },
+  { id: 'phoneNumber', label: 'Phone' },
+  { id: 'divisionId', label: 'Division' },
+  { id: 'districtId', label: 'District' },
+  { id: 'publish', label: 'Publish' },
   { id: '', width: 88 },
 ];
 
@@ -69,15 +72,24 @@ export function CentreListView() {
 
   const confirmDialog = useBoolean();
 
-  const { centres } = useGetCentres();
+  const { divisionsWithDistricts } = useGetDivisionsWithDistricts();
+  const { centres } = useGetCentresWithDivisionAndDistrict();
 
-  const [tableData, setTableData] = useState<ICentreItem[]>(centres);
+  const [tableData, setTableData] = useState<ICentresWithDivisionAndDistrict[]>(centres);
 
   const filters = useSetState<ICentreTableFilters>({
     name: '',
+    divisions: [],
+    districts: [],
     publish: 'all',
   });
   const { state: currentFilters, setState: updateFilters } = filters;
+
+  useEffect(() => {
+    if (centres.length) {
+      setTableData(centres);
+    }
+  }, [centres]);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -85,9 +97,17 @@ export function CentreListView() {
     filters: currentFilters,
   });
 
+  const filteredDistricts = divisionsWithDistricts
+    .filter((division) => currentFilters.divisions.includes(division.name))
+    .flatMap((division) => division.districts);
+
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
-  const canReset = !!currentFilters.name || currentFilters.publish !== 'all';
+  const canReset =
+    !!currentFilters.name ||
+    currentFilters.publish !== 'all' ||
+    currentFilters.divisions.length > 0 ||
+    currentFilters.districts.length > 0;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -204,7 +224,14 @@ export function CentreListView() {
             ))}
           </Tabs>
 
-          <CentreTableToolbar filters={filters} onResetPage={table.onResetPage} />
+          <CentreTableToolbar
+            filters={filters}
+            onResetPage={table.onResetPage}
+            options={{
+              divisions: divisionsWithDistricts.map((division) => division.name),
+              districts: filteredDistricts.map((district) => district.name),
+            }}
+          />
 
           {canReset && (
             <CentreTableFiltersResult
@@ -300,13 +327,13 @@ export function CentreListView() {
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: ICentreItem[];
+  inputData: ICentresWithDivisionAndDistrict[];
   filters: ICentreTableFilters;
   comparator: (a: any, b: any) => number;
 };
 
 function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
-  const { publish, name } = filters;
+  const { publish, name, districts, divisions } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
@@ -324,8 +351,16 @@ function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
     );
   }
 
+  if (divisions.length) {
+    inputData = inputData.filter((centre) => divisions.includes(centre.division.name));
+  }
+
+  if (districts.length) {
+    inputData = inputData.filter((centre) => districts.includes(centre.district.name));
+  }
+
   if (publish !== 'all') {
-    inputData = inputData.filter((centre) => centre.publish === status);
+    inputData = inputData.filter((centre) => centre.publish === publish);
   }
 
   return inputData;

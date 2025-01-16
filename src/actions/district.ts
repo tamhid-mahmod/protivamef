@@ -61,8 +61,8 @@ export function useGetDistrictsWithDivision() {
 
   const memoizedValue = useMemo(
     () => ({
-      districtsLoading: isLoading,
       districtsWithDivision: districtsWithDivisionData?.districts || [],
+      districtsLoading: isLoading,
       districtsWithDivisionError: error,
       districtsWithDivisionValidating: isValidating,
       districtsWithDivisionEmpty:
