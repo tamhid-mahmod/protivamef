@@ -1,9 +1,9 @@
 import type { ICentreItem } from 'src/types/centre';
 
-import { z as zod } from 'zod';
+import { useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { isValidPhoneNumber } from 'react-phone-number-input/input';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -18,29 +18,14 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { client } from 'src/lib/trpc';
+import { useGetDivisionsWithDistricts } from 'src/actions/division';
+import { NewCentreSchema, type NewCentreSchemaType } from 'src/schemas/centre';
+
 import { toast } from 'src/components/snackbar';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { Form, Field } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
-
-export type NewCentreSchemaType = zod.infer<typeof NewCentreSchema>;
-
-export const NewCentreSchema = zod.object({
-  name: zod.string().min(1, { message: 'Centre name is required!' }),
-  code: zod
-    .string()
-    .min(1, { message: 'Centre code is required!' })
-    .min(3, { message: 'Code must be at least 3 characters!' }),
-  email: zod
-    .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
-  phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
-  address: zod.string().min(1, { message: 'Address is required!' }),
-  division: zod.string().min(1, { message: 'Division is required!' }),
-  district: zod.string().min(1, { message: 'District is required!' }),
-  publish: zod.string(),
-});
 
 // ----------------------------------------------------------------------
 
@@ -50,6 +35,9 @@ type Props = {
 
 export function CentreNewEditForm({ currentCentre }: Props) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const { divisionsWithDistricts } = useGetDivisionsWithDistricts();
 
   const defaultValues: NewCentreSchemaType = {
     name: '',
@@ -57,9 +45,9 @@ export function CentreNewEditForm({ currentCentre }: Props) {
     email: '',
     phoneNumber: '',
     address: '',
-    division: '',
-    district: '',
-    publish: '',
+    divisionId: '',
+    districtId: '',
+    publish: 'draft',
   };
 
   const methods = useForm<NewCentreSchemaType>({
@@ -71,20 +59,40 @@ export function CentreNewEditForm({ currentCentre }: Props) {
   const {
     reset,
     control,
+    watch,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
+  const selectedDivisionId = watch('divisionId');
+
+  const districts = useMemo(() => {
+    const selectedDivision = divisionsWithDistricts.find(
+      (division) => division.id === selectedDivisionId
+    );
+    return selectedDivision?.districts || [];
+  }, [selectedDivisionId, divisionsWithDistricts]);
+
+  const { mutate: handleCentre, isPending } = useMutation({
+    mutationFn: async (data: NewCentreSchemaType) => {
+      await client.centre.createCentre.$post(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['centres'] });
+      toast.success(currentCentre ? 'Centre updated!' : 'Centre added!');
+      if (!currentCentre) {
+        reset();
+        router.push(paths.dashboard.centre.root);
+      }
+      router.refresh();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      toast.success(currentCentre ? 'Category updated!' : 'Category created!');
-      router.push(paths.dashboard.centre.root);
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
+    handleCentre(data);
   });
 
   const renderDetails = () => (
@@ -121,12 +129,20 @@ export function CentreNewEditForm({ currentCentre }: Props) {
             gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
           }}
         >
-          <Field.Select name="division" label="Division">
-            <MenuItem value="dhaka">Dhaka</MenuItem>
+          <Field.Select name="divisionId" label="Division">
+            {divisionsWithDistricts.map((option) => (
+              <MenuItem key={option.id} value={option.id}>
+                {option.name}
+              </MenuItem>
+            ))}
           </Field.Select>
 
-          <Field.Select name="district" label="District">
-            <MenuItem value="narsingdi">Narsingdi</MenuItem>
+          <Field.Select name="districtId" label="District">
+            {districts.map((option) => (
+              <MenuItem key={option.id} value={option.id}>
+                {option.name}
+              </MenuItem>
+            ))}
           </Field.Select>
         </Box>
       </Stack>
@@ -149,7 +165,7 @@ export function CentreNewEditForm({ currentCentre }: Props) {
             render={({ field }) => (
               <Switch
                 {...field}
-                checked={field.value !== 'draft'}
+                checked={field.value === 'published'}
                 onChange={(event) => field.onChange(event.target.checked ? 'published' : 'draft')}
               />
             )}
@@ -166,7 +182,7 @@ export function CentreNewEditForm({ currentCentre }: Props) {
         type="submit"
         variant="contained"
         size="large"
-        loading={isSubmitting}
+        loading={isSubmitting || isPending}
       >
         {!currentCentre ? 'Create centre' : 'Save changes'}
       </LoadingButton>

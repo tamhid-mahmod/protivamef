@@ -14,9 +14,9 @@ export type ICentreItem = {
   email: string;
   phoneNumber: string;
   address: string;
-  division: string;
-  district: string;
-  publish: string;
+  divisionId: string;
+  districtId: string;
+  publish: 'draft' | 'published';
   createdAt: IDateValue;
   updatedAt: IDateValue;
 };

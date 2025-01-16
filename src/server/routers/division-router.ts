@@ -17,6 +17,22 @@ export const divisionRouter = router({
     return c.superjson({ divisions });
   }),
 
+  getDivisionsWithDistricts: publicProcedure.query(async ({ c }) => {
+    const divisionsWithDistricts = await db.division.findMany({
+      include: {
+        districts: {
+          select: {
+            id: true,
+            name: true,
+            divisionId: true,
+          },
+        },
+      },
+    });
+
+    return c.superjson({ divisionsWithDistricts });
+  }),
+
   createDivision: privateProcedure.input(NewDivisionSchema).mutation(async ({ c, input }) => {
     const { name } = input;
 

@@ -1,0 +1,25 @@
+enum CentrePublish {
+  draft
+  published
+}
+
+model Centre {
+  id            String          @id @default(cuid())
+  name          String
+  code          String          @unique
+  email         String          @unique
+  phoneNumber   String
+  address       String
+  publish       CentrePublish   @default(draft)
+  divisionId    String?
+  districtId    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  division Division? @relation(fields: [divisionId], references: [id], onDelete: SetNull)
+  district District? @relation(fields: [districtId], references: [id], onDelete: SetNull)
+
+  @@index([divisionId, districtId])
+  @@unique([code, email])
+}

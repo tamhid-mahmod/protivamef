@@ -1,4 +1,4 @@
-import type { IDivisionItem } from 'src/types/division';
+import type { IDivisionItem, IDivisionWithDistrictsItem } from 'src/types/division';
 
 import { useMemo } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
@@ -13,7 +13,7 @@ type DivisionsData = {
 
 export function useGetDivisions() {
   const {
-    data: divisionsData,
+    data,
     isPending: isLoading,
     error,
     isFetching: isValidating,
@@ -27,13 +27,48 @@ export function useGetDivisions() {
 
   const memoizedValue = useMemo(
     () => ({
-      divisions: divisionsData?.divisions || [],
+      divisions: data?.divisions || [],
       divisionsLoading: isLoading,
       divisionsError: error,
       divisionsValidating: isValidating,
-      divisionsEmpty: !isLoading && !isValidating && divisionsData?.divisions.length,
+      divisionsEmpty: !isLoading && !isValidating && data?.divisions.length,
     }),
-    [divisionsData, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating]
+  );
+
+  return memoizedValue;
+}
+
+// ----------------------------------------------------------------------
+
+type DivisionsWithDistrictsData = {
+  divisionsWithDistricts: IDivisionWithDistrictsItem[];
+};
+
+export function useGetDivisionsWithDistricts() {
+  const {
+    data,
+    isPending: isLoading,
+    error,
+    isFetching: isValidating,
+  }: UseQueryResult<DivisionsWithDistrictsData> = useQuery({
+    queryKey: ['divisions-with-districts'],
+    queryFn: async () => {
+      const res = await client.division.getDivisionsWithDistricts.$get();
+      return await res.json();
+    },
+  });
+
+  const memoizedValue = useMemo(
+    () => ({
+      divisionsWithDistricts: data?.divisionsWithDistricts || [],
+      divisionsWithDistrictsLoading: isLoading,
+      divisionsWithDistrictsError: error,
+      divisionsWithDistrictsValidating: isValidating,
+      divisionsWithDistrictsEmpty:
+        !isLoading && !isValidating && data?.divisionsWithDistricts.length,
+    }),
+    [data, error, isLoading, isValidating]
   );
 
   return memoizedValue;

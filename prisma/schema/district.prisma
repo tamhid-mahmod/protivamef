@@ -2,6 +2,7 @@ model District {
   id            String          @id @default(cuid())
   name          String
   divisionId    String
+  centres        Centre[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
