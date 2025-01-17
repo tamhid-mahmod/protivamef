@@ -20,7 +20,11 @@ import { useRouter } from 'src/routes/hooks';
 
 import { client } from 'src/lib/trpc';
 import { useGetDivisionsWithDistricts } from 'src/actions/division';
-import { NewCentreSchema, type NewCentreSchemaType } from 'src/schemas/centre';
+import {
+  NewCentreSchema,
+  type NewCentreSchemaType,
+  type UpdateCentreSchemaType,
+} from 'src/schemas/centre';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
@@ -74,17 +78,21 @@ export function CentreNewEditForm({ currentCentre }: Props) {
   }, [selectedDivisionId, divisionsWithDistricts]);
 
   const { mutate: handleCentre, isPending } = useMutation({
-    mutationFn: async (data: NewCentreSchemaType) => {
-      await client.centre.createCentre.$post(data);
+    mutationFn: async (data: UpdateCentreSchemaType | NewCentreSchemaType) => {
+      if ('centreId' in data && currentCentre) {
+        await client.centre.updateCentre.$post(data);
+      } else {
+        await client.centre.createCentre.$post(data);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['centres'] });
       toast.success(currentCentre ? 'Centre updated!' : 'Centre added!');
       if (!currentCentre) {
         reset();
-        router.push(paths.dashboard.centre.root);
       }
       router.refresh();
+      router.push(paths.dashboard.centre.root);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -92,7 +100,11 @@ export function CentreNewEditForm({ currentCentre }: Props) {
   });
 
   const onSubmit = handleSubmit(async (data) => {
-    handleCentre(data);
+    if (currentCentre) {
+      handleCentre({ centreId: currentCentre.id, ...data });
+    } else {
+      handleCentre(data);
+    }
   });
 
   const renderDetails = () => (

@@ -32,6 +32,15 @@ export const NewCentreSchema = zod.object({
 
 // ----------------------------------------------------------------------
 
+export type UpdateCentreSchemaType = zod.infer<typeof UpdateCentreSchema>;
+
+export const UpdateCentreSchema = zod.object({
+  centreId: zod.string().min(1, { message: 'Centre id is required!' }),
+  ...NewCentreSchema.shape,
+});
+
+// ----------------------------------------------------------------------
+
 export type DeleteCentreSchemaType = zod.infer<typeof DeleteCentreSchema>;
 
 export const DeleteCentreSchema = zod.object({

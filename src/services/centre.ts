@@ -9,15 +9,21 @@ import { db } from 'src/lib/db';
  *
  * @param {string} code - The code of the centre.
  * @param {string} email - The email of the centre.
+ * @param {string} excludeId - The ID of the centre to exclude from the check.
  * @returns {Promise<Object | null>} - The found centre or null if no match.
  * @throws {Error} - Throws an error if the database query fails.
  */
-export const isDataConflict = async (code: string, email: string): Promise<ICentreItem | null> => {
+export const isDataConflict = async (
+  code: string,
+  email: string,
+  excludeId?: string
+): Promise<ICentreItem | null> => {
   try {
     // Check for a centre with matching criteria
     const centre = await db.centre.findFirst({
       where: {
         OR: [{ code }, { email }],
+        NOT: { id: excludeId },
       },
     });
 

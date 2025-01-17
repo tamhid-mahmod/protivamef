@@ -1,14 +1,34 @@
+import { z as zod } from 'zod';
 import { HTTPException } from 'hono/http-exception';
 
 import { db } from 'src/lib/db';
 import { getCentreById, isDataConflict } from 'src/services/centre';
-import { NewCentreSchema, DeleteCentreSchema, DeleteCentresSchema } from 'src/schemas/centre';
+import {
+  NewCentreSchema,
+  UpdateCentreSchema,
+  DeleteCentreSchema,
+  DeleteCentresSchema,
+} from 'src/schemas/centre';
 
 import { router } from '../__internals/router';
-import { privateProcedure } from '../procedures';
+import { publicProcedure, privateProcedure } from '../procedures';
 // ----------------------------------------------------------------------
 
 export const centreRouter = router({
+  centreDetails: publicProcedure
+    .input(zod.object({ centreId: zod.string().min(1) }))
+    .query(async ({ c, input }) => {
+      const { centreId } = input;
+
+      const centre = await getCentreById(centreId);
+
+      if (!centre) {
+        throw new HTTPException(404, { message: 'The resource does not exist.' });
+      }
+
+      return c.json({ centre });
+    }),
+
   getCentresWithDivisionAndDistrict: privateProcedure.query(async ({ c }) => {
     const centres = await db.centre.findMany({
       include: {
@@ -48,6 +68,46 @@ export const centreRouter = router({
       return c.json({ success: true, data: newCentre }, 201);
     } catch (error) {
       console.error('Error creating centre:', error);
+      throw error;
+    }
+  }),
+
+  updateCentre: privateProcedure.input(UpdateCentreSchema).mutation(async ({ c, input }) => {
+    const { centreId, name, code, email, phoneNumber, address, divisionId, districtId, publish } =
+      input;
+
+    try {
+      const existingCentre = await getCentreById(centreId);
+
+      if (!existingCentre) {
+        throw new HTTPException(404, { message: 'The resource to be update does not exist.' });
+      }
+
+      const existingConflictCentre = await isDataConflict(code, email, existingCentre.id);
+
+      if (existingConflictCentre) {
+        throw new HTTPException(409, { message: 'Centre with similar data already exists.' });
+      }
+
+      await db.centre.update({
+        where: {
+          id: centreId,
+        },
+        data: {
+          ...(name && { name }),
+          ...(code && { code }),
+          ...(email && { email }),
+          ...(phoneNumber && { phoneNumber }),
+          ...(address && { address }),
+          ...(divisionId && { divisionId }),
+          ...(districtId && { districtId }),
+          ...(publish !== undefined && { publish }),
+        },
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error('Error updating centre:', error);
       throw error;
     }
   }),

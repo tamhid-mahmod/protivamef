@@ -2,13 +2,15 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { handle } from 'hono/vercel';
 
+import { CONFIG } from 'src/global-config';
+
 import { centreRouter } from './routers/centre-router';
 import { divisionRouter } from './routers/division-router';
 import { districtRouter } from './routers/district-router';
 
 // ----------------------------------------------------------------------
 
-const app = new Hono().basePath('/api').use(cors());
+const app = new Hono().basePath('/api').use(cors({ origin: CONFIG.serverUrl }));
 
 /**
  * This is the primary router for your server.
