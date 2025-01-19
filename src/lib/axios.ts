@@ -36,4 +36,7 @@ export const endpoints = {
   centre: {
     details: '/api/centre/centreDetails',
   },
+  category: {
+    details: '/api/category/getCategoryDetails',
+  },
 };

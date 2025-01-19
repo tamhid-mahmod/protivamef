@@ -9,14 +9,19 @@ import { db } from 'src/lib/db';
  *
  * @param {string} name - The name of the category.
  * @returns {Promise<ICategoryItem | null>} - The found centre or null if no match.
+ * @param {string} excludeId - The ID of the category to exclude from the check.
  * @throws {Error} - Throws an error if the database query fails.
  */
-export const isDataConflict = async (name: string): Promise<ICategoryItem | null> => {
+export const isDataConflict = async (
+  name: string,
+  excludeId?: string
+): Promise<ICategoryItem | null> => {
   try {
     // Check for a centre with matching criteria
     const category = await db.category.findUnique({
       where: {
         name,
+        NOT: { id: excludeId },
       },
     });
 

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { CONFIG } from 'src/global-config';
 import { getCentre } from 'src/actions/centre-ssr';
 
-import { CentreEditView } from 'src/sections/centre/view/centre-edit-view';
+import { CentreEditView } from 'src/sections/centre/view';
 
 // ----------------------------------------------------------------------
 

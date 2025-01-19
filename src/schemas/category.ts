@@ -28,6 +28,23 @@ export const NewCategorySchema = zod.object({
 
 // ----------------------------------------------------------------------
 
+export type UpdateCategorySchemaType = zod.infer<typeof UpdateCategorySchema>;
+
+export const UpdateCategorySchema = zod.object({
+  categoryId: zod.string().min(1, { message: 'Category id is required!' }),
+  ...NewCategorySchema.shape,
+});
+
+// ----------------------------------------------------------------------
+
+export type GetCategorySchemaType = zod.infer<typeof GetCategorySchema>;
+
+export const GetCategorySchema = zod.object({
+  categoryId: zod.string().min(1, { message: 'Category id is required!' }),
+});
+
+// ----------------------------------------------------------------------
+
 export type DeleteCategorySchemaType = zod.infer<typeof DeleteCategorySchema>;
 
 export const DeleteCategorySchema = zod.object({

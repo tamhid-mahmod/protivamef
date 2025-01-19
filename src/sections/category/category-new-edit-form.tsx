@@ -18,7 +18,11 @@ import { useRouter } from 'src/routes/hooks';
 
 import { client } from 'src/lib/trpc';
 import { uploadImageToS3 } from 'src/actions/s3';
-import { NewCategorySchema, type NewCategorySchemaType } from 'src/schemas/category';
+import {
+  NewCategorySchema,
+  type NewCategorySchemaType,
+  type UpdateCategorySchemaType,
+} from 'src/schemas/category';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
@@ -69,18 +73,22 @@ export function CategoryNewEditForm({ currentCategory }: Props) {
     }
   }, [methods]);
 
-  const { mutate: handleCentre, isPending } = useMutation({
-    mutationFn: async (data: NewCategorySchemaType) => {
-      await client.category.createCategory.$post(data);
+  const { mutate: handleCategory, isPending } = useMutation({
+    mutationFn: async (data: UpdateCategorySchemaType | NewCategorySchemaType) => {
+      if ('categoryId' in data && currentCategory) {
+        await client.category.updateCategory.$post(data);
+      } else {
+        await client.category.createCategory.$post(data);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success(currentCategory ? 'Category updated!' : 'Category added!');
       if (!currentCategory) {
         reset();
+        router.push(paths.dashboard.course.category.root);
       }
       router.refresh();
-      router.push(paths.dashboard.course.category.root);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -95,7 +103,12 @@ export function CategoryNewEditForm({ currentCategory }: Props) {
           data.coverUrl = imageUrl;
         }
       }
-      handleCentre(data);
+
+      if (currentCategory) {
+        handleCategory({ categoryId: currentCategory.id, ...data });
+      } else {
+        handleCategory(data);
+      }
     } catch (error: any) {
       toast.error(error.message);
     }
