@@ -7,6 +7,6 @@ export type ICategoryItem = {
   name: string;
   description: string;
   coverUrl: string;
-  createdAt: IDateValue;
-  updatedAt: IDateValue;
+  createdAt: IDateValue | Date;
+  updatedAt: IDateValue | Date;
 };

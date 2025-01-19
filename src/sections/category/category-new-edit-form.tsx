@@ -1,9 +1,9 @@
 import type { ICategoryItem } from 'src/types/category';
 
-import { z as zod } from 'zod';
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -16,21 +16,12 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { client } from 'src/lib/trpc';
+import { uploadImageToS3 } from 'src/actions/s3';
+import { NewCategorySchema, type NewCategorySchemaType } from 'src/schemas/category';
+
 import { toast } from 'src/components/snackbar';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
-
-// ----------------------------------------------------------------------
-
-export type NewCategorySchemaType = zod.infer<typeof NewCategorySchema>;
-
-export const NewCategorySchema = zod.object({
-  name: zod.string().min(1, { message: 'Name is required!' }),
-  description: schemaHelper
-    .editor({ message: 'Description is required!' })
-    .min(100, { message: 'Description must be at least 100 characters' })
-    .max(500, { message: 'Description must be less than 500 characters' }),
-  coverUrl: schemaHelper.file({ message: 'Cover is required!' }),
-});
+import { Form, Field } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
@@ -40,6 +31,7 @@ type Props = {
 
 export function CategoryNewEditForm({ currentCategory }: Props) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const defaultValues: NewCategorySchemaType = {
     name: '',
@@ -60,15 +52,52 @@ export function CategoryNewEditForm({ currentCategory }: Props) {
     formState: { isSubmitting },
   } = methods;
 
+  const handleUploadImage = useCallback(async () => {
+    try {
+      const file = methods.getValues('coverUrl');
+
+      const formData = new FormData();
+      formData.append('file', file as File);
+
+      const imageUrl = await uploadImageToS3(formData, {
+        key: 'categories',
+      });
+
+      return imageUrl;
+    } catch {
+      throw new Error('Failed to upload cover!');
+    }
+  }, [methods]);
+
+  const { mutate: handleCentre, isPending } = useMutation({
+    mutationFn: async (data: NewCategorySchemaType) => {
+      await client.category.createCategory.$post(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      toast.success(currentCategory ? 'Category updated!' : 'Category added!');
+      if (!currentCategory) {
+        reset();
+      }
+      router.refresh();
+      router.push(paths.dashboard.course.category.root);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      toast.success(currentCategory ? 'Category updated!' : 'Category created!');
-      router.push(paths.dashboard.course.category.root);
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
+      if (currentCategory?.coverUrl !== data.coverUrl) {
+        const imageUrl = await handleUploadImage();
+        if (imageUrl) {
+          data.coverUrl = imageUrl;
+        }
+      }
+      handleCentre(data);
+    } catch (error: any) {
+      toast.error(error.message);
     }
   });
 
@@ -93,7 +122,7 @@ export function CategoryNewEditForm({ currentCategory }: Props) {
             name="coverUrl"
             maxSize={3145728}
             onDelete={handleRemoveFile}
-            onUpload={() => console.log('ON UPLOAD')}
+            helperText="16:9 aspect ratio recomended"
           />
         </Stack>
       </Stack>
@@ -114,7 +143,7 @@ export function CategoryNewEditForm({ currentCategory }: Props) {
         type="submit"
         variant="contained"
         size="large"
-        loading={isSubmitting}
+        loading={isSubmitting || isPending}
       >
         {!currentCategory ? 'Create category' : 'Save changes'}
       </LoadingButton>

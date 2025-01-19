@@ -7,6 +7,7 @@ import { CONFIG } from 'src/global-config';
 import { centreRouter } from './routers/centre-router';
 import { divisionRouter } from './routers/division-router';
 import { districtRouter } from './routers/district-router';
+import { categoryRouter } from './routers/category-router';
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +22,8 @@ const app = new Hono().basePath('/api').use(cors({ origin: CONFIG.serverUrl }));
 const appRouter = app
   .route('/division', divisionRouter)
   .route('/district', districtRouter)
-  .route('/centre', centreRouter);
+  .route('/centre', centreRouter)
+  .route('/category', categoryRouter);
 
 // The handler Next.js uses to answer API requests
 export const httpHandler = handle(app);

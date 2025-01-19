@@ -15,6 +15,12 @@ export type ConfigValue = {
     skip: boolean;
     redirectPath: string;
   };
+  s3Bucket: {
+    bucketName: string;
+    region: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
 };
 
 // ----------------------------------------------------------------------
@@ -33,5 +39,14 @@ export const CONFIG: ConfigValue = {
     method: 'jwt',
     skip: false,
     redirectPath: paths.dashboard.root,
+  },
+  /**
+   * S3
+   */
+  s3Bucket: {
+    bucketName: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME ?? '',
+    region: process.env.NEXT_PUBLIC_AWS_S3_REGION ?? '',
+    accessKeyId: process.env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID ?? '',
+    secretAccessKey: process.env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY ?? '',
   },
 };
