@@ -26,3 +26,28 @@ export const isDataConflict = async (name: string): Promise<ICategoryItem | null
     throw new Error('Could not verify data conflict.');
   }
 };
+
+// ----------------------------------------------------------------------
+
+/**
+ * Retrieves a category from the database by its unique identifier.
+ *
+ * @param {string} id - The unique identifier of the category to be retrieved.
+ * @returns {Promise<ICategoryItem | null>} - A promise that resolves to the centre object if found, or `null` if no match exists.
+ * @throws {Error} - Throws an error if the database query fails.
+ */
+export const getCategoryById = async (id: string): Promise<ICategoryItem | null> => {
+  try {
+    // Check for a centre with matching criteria
+    const category = await db.category.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return category;
+  } catch (error) {
+    console.error('Error retrieving category by ID:', error);
+    throw new Error('Could not verify data.');
+  }
+};

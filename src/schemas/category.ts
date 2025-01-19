@@ -25,3 +25,21 @@ export const NewCategorySchema = zod.object({
     return data;
   }),
 });
+
+// ----------------------------------------------------------------------
+
+export type DeleteCategorySchemaType = zod.infer<typeof DeleteCategorySchema>;
+
+export const DeleteCategorySchema = zod.object({
+  categoryId: zod.string().min(1, { message: 'Category id is required!' }),
+});
+
+// ----------------------------------------------------------------------
+
+export type DeleteCategoriesSchemaType = zod.infer<typeof DeleteCategoriesSchema>;
+
+export const DeleteCategoriesSchema = zod.object({
+  categoryIds: zod
+    .array(zod.string().min(1, { message: 'Categories id is required!' }))
+    .nonempty({ message: 'At least one ID is required!' }),
+});

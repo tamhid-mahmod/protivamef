@@ -5,6 +5,7 @@ import type { ICategoryItem, ICategoryTableFilters } from 'src/types/category';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -17,6 +18,7 @@ import IconButton from '@mui/material/IconButton';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { client } from 'src/lib/trpc';
 import { useGetCategories } from 'src/actions/category';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -60,6 +62,7 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 
 export function CategoryListView() {
   const table = useTable();
+  const queryClient = useQueryClient();
   const confirmDialog = useBoolean();
 
   const { categories } = useGetCategories();
@@ -87,17 +90,49 @@ export function CategoryListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback((id: string) => {}, []);
+  const { mutate: handleDeleteRow } = useMutation({
+    mutationFn: async (categoryId: string) => {
+      await client.category.deleteCategory.$post({ categoryId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      toast.success('Category deleted!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const { mutate: handleDeleteCategoryRows } = useMutation({
+    mutationFn: async (categoryIds: [string, ...string[]]) => {
+      await client.category.deleteCategories.$post({ categoryIds });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      toast.success('All selected categories are deleted!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
 
-    toast.success('Delete success!');
+    const deleteIds = tableData
+      .filter((row) => table.selected.includes(row.id))
+      .map((row) => row.id);
+
+    if (deleteIds.length > 0) {
+      handleDeleteCategoryRows(deleteIds as [string, ...string[]]);
+    } else {
+      toast.error('No centres selected for deletion.');
+    }
 
     setTableData(deleteRows);
 
     table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  }, [dataFiltered.length, dataInPage.length, table, tableData, handleDeleteCategoryRows]);
 
   const renderConfirmDialog = () => (
     <ConfirmDialog

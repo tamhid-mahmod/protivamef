@@ -139,7 +139,7 @@ export const centreRouter = router({
     const { centreIds } = input;
 
     try {
-      const existingCentres = await db.district.findMany({
+      const existingCentres = await db.centre.findMany({
         where: {
           id: { in: centreIds },
         },

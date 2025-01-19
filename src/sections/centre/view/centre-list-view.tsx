@@ -70,7 +70,7 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 // ----------------------------------------------------------------------
 
 export function CentreListView() {
-  const table = useTable({ defaultOrderBy: 'orderNumber' });
+  const table = useTable();
   const queryClient = useQueryClient();
 
   const confirmDialog = useBoolean();
