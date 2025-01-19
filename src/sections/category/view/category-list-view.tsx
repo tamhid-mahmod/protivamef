@@ -1,45 +1,45 @@
 'use client';
 
-import type { ICategoryItem } from 'src/types/category';
 import type { TableHeadCellProps } from 'src/components/table';
+import type { ICategoryItem, ICategoryTableFilters } from 'src/types/category';
 
-import useSWR from 'swr';
-import { useState, useEffect } from 'react';
-import { usePopover } from 'minimal-shared/hooks';
+import { useState, useEffect, useCallback } from 'react';
+import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import MenuList from '@mui/material/MenuList';
-import MenuItem from '@mui/material/MenuItem';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
+import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
-import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import CardHeader from '@mui/material/CardHeader';
-import ListItemIcon from '@mui/material/ListItemIcon';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { fDate } from 'src/utils/format-time';
-
-import { fetcher } from 'src/lib/axios';
+import { useGetCategories } from 'src/actions/category';
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { CustomPopover } from 'src/components/custom-popover';
+import { Scrollbar } from 'src/components/scrollbar';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
+  emptyRows,
+  rowInPage,
   TableNoData,
-  TableSkeleton,
+  getComparator,
+  TableEmptyRows,
   TableHeadCustom,
+  TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import { CategoryTableRow } from '../category-table-row';
+import { CategoryTableToolbar } from '../category-table-toolbar';
+import { CategoryTableFiltersResult } from '../category-table-filter-result';
 
 // ----------------------------------------------------------------------
 
@@ -49,175 +49,229 @@ export type ApiResponse = {
   totalItems: number;
 };
 
-const createBaseEndpoint = (page = 1, rowsPerPage = 5) =>
-  `/api/pagination?page=${page}&perPage=${rowsPerPage}`;
+const TABLE_HEAD: TableHeadCellProps[] = [
+  { id: 'name', label: 'Category name', width: 400 },
+  { id: 'description', label: 'Description' },
+  { id: 'createdAt', label: 'Created At' },
+  { id: '', width: 88 },
+];
 
 // ----------------------------------------------------------------------
 
 export function CategoryListView() {
-  const { page, rowsPerPage, onChangeRowsPerPage, onChangePage } = useTable();
+  const table = useTable();
+  const confirmDialog = useBoolean();
 
-  const defaultEndpoint = createBaseEndpoint();
-  const [endpoint, setEndpoint] = useState(defaultEndpoint);
+  const { categories } = useGetCategories();
 
-  const { data, isLoading } = useSWR<ApiResponse>(endpoint, fetcher, {
-    keepPreviousData: true,
-  });
+  const [tableData, setTableData] = useState<ICategoryItem[]>(categories);
+
+  const filters = useSetState<ICategoryTableFilters>({ name: '' });
+  const { state: currentFilters } = filters;
 
   useEffect(() => {
-    const updatedEndpoint = createBaseEndpoint(page + 1, rowsPerPage);
+    if (categories.length) {
+      setTableData(categories);
+    }
+  }, [categories]);
 
-    setEndpoint(updatedEndpoint);
-  }, [page, rowsPerPage]);
+  const dataFiltered = applyFilter({
+    inputData: tableData,
+    comparator: getComparator(table.order, table.orderBy),
+    filters: currentFilters,
+  });
 
-  const notFound = !data?.category.length;
+  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
-  const headCells: TableHeadCellProps[] = [
-    { id: 'name', label: 'Category' },
-    { id: 'description', label: 'Description', width: 500 },
-    { id: 'createdAt', label: 'Created At' },
-    { id: '' },
-  ];
+  const canReset = !!currentFilters.name;
+
+  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
+  const handleDeleteRow = useCallback((id: string) => {}, []);
+
+  const handleDeleteRows = useCallback(() => {
+    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+
+    toast.success('Delete success!');
+
+    setTableData(deleteRows);
+
+    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
+  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+
+  const renderConfirmDialog = () => (
+    <ConfirmDialog
+      open={confirmDialog.value}
+      onClose={confirmDialog.onFalse}
+      title="Delete"
+      content={
+        <>
+          Are you sure want to delete <strong> {table.selected.length} </strong> items?
+        </>
+      }
+      action={
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            handleDeleteRows();
+            confirmDialog.onFalse();
+          }}
+        >
+          Delete
+        </Button>
+      }
+    />
+  );
 
   return (
-    <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-      <CustomBreadcrumbs
-        heading="Category list"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Course', href: paths.dashboard.course.root },
-          { name: 'Category', href: paths.dashboard.course.category.root },
-          { name: 'List' },
-        ]}
-        action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.course.category.new}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-          >
-            New category
-          </Button>
-        }
-        sx={{ mb: { xs: 3, md: 5 } }}
-      />
-
-      <Card
-        sx={{
-          flexGrow: { md: 1 },
-          display: { md: 'flex' },
-          flexDirection: { md: 'column' },
-        }}
-      >
-        <CardHeader title="Details" sx={{ mb: 3 }} />
-
-        <Table>
-          <TableHeadCustom headCells={headCells} />
-
-          <TableBody>
-            {isLoading ? (
-              <TableSkeleton
-                rowCount={rowsPerPage}
-                cellCount={headCells.length}
-                sx={{ height: 69 }}
-              />
-            ) : (
-              <>
-                {notFound ? (
-                  <TableNoData notFound={notFound} />
-                ) : (
-                  data?.category.map((row) => <RowItem key={row.id} row={row} />)
-                )}
-              </>
-            )}
-          </TableBody>
-        </Table>
-
-        <Divider />
-
-        <TablePaginationCustom
-          rowsPerPage={rowsPerPage}
-          page={isLoading ? 0 : page}
-          onPageChange={onChangePage}
-          count={isLoading ? 0 : (data?.totalItems ?? 0)}
-          onRowsPerPageChange={onChangeRowsPerPage}
+    <>
+      <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        <CustomBreadcrumbs
+          heading="Category list"
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Course', href: paths.dashboard.course.root },
+            { name: 'Category', href: paths.dashboard.course.category.root },
+            { name: 'List' },
+          ]}
+          action={
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.course.category.new}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+            >
+              New category
+            </Button>
+          }
+          sx={{ mb: { xs: 3, md: 5 } }}
         />
-      </Card>
-    </DashboardContent>
+
+        <Card
+          sx={{
+            flexGrow: { md: 1 },
+            display: { md: 'flex' },
+            flexDirection: { md: 'column' },
+          }}
+        >
+          <CategoryTableToolbar filters={filters} onResetPage={table.onResetPage} />
+
+          {canReset && (
+            <CategoryTableFiltersResult
+              filters={filters}
+              totalResults={dataFiltered.length}
+              onResetPage={table.onResetPage}
+              sx={{ p: 2.5, pt: 0 }}
+            />
+          )}
+
+          <Box sx={{ position: 'relative' }}>
+            <TableSelectedAction
+              dense={table.dense}
+              numSelected={table.selected.length}
+              rowCount={dataFiltered.length}
+              onSelectAllRows={(checked) =>
+                table.onSelectAllRows(
+                  checked,
+                  dataFiltered.map((row) => row.id)
+                )
+              }
+              action={
+                <Tooltip title="Delete">
+                  <IconButton color="primary" onClick={confirmDialog.onTrue}>
+                    <Iconify icon="solar:trash-bin-trash-bold" />
+                  </IconButton>
+                </Tooltip>
+              }
+            />
+
+            <Scrollbar sx={{ minHeight: 444 }}>
+              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                <TableHeadCustom
+                  order={table.order}
+                  orderBy={table.orderBy}
+                  headCells={TABLE_HEAD}
+                  rowCount={dataFiltered.length}
+                  numSelected={table.selected.length}
+                  onSort={table.onSort}
+                  onSelectAllRows={(checked) =>
+                    table.onSelectAllRows(
+                      checked,
+                      dataFiltered.map((row) => row.id)
+                    )
+                  }
+                />
+
+                <TableBody>
+                  {dataFiltered
+                    .slice(
+                      table.page * table.rowsPerPage,
+                      table.page * table.rowsPerPage + table.rowsPerPage
+                    )
+                    .map((row) => (
+                      <CategoryTableRow
+                        key={row.id}
+                        row={row}
+                        selected={table.selected.includes(row.id)}
+                        onSelectRow={() => table.onSelectRow(row.id)}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        editHref={paths.dashboard.course.category.edit(row.id)}
+                      />
+                    ))}
+
+                  <TableEmptyRows
+                    height={table.dense ? 56 : 56 + 20}
+                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                  />
+
+                  <TableNoData notFound={notFound} />
+                </TableBody>
+              </Table>
+            </Scrollbar>
+          </Box>
+
+          <TablePaginationCustom
+            page={table.page}
+            dense={table.dense}
+            count={dataFiltered.length}
+            rowsPerPage={table.rowsPerPage}
+            onPageChange={table.onChangePage}
+            onChangeDense={table.onChangeDense}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
+          />
+        </Card>
+      </DashboardContent>
+
+      {renderConfirmDialog()}
+    </>
   );
 }
 
 // ----------------------------------------------------------------------
 
-type RowItemProps = {
-  row: ICategoryItem;
+type ApplyFilterProps = {
+  inputData: ICategoryItem[];
+  filters: ICategoryTableFilters;
+  comparator: (a: any, b: any) => number;
 };
 
-function RowItem({ row }: RowItemProps) {
-  const menuActions = usePopover();
+function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
+  const { name } = filters;
 
-  const handleDelete = () => {
-    menuActions.onClose();
-    console.info('DELETE', row.id);
-  };
+  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: 'right-top' } }}
-    >
-      <MenuList>
-        <MenuItem>
-          <Link
-            component={RouterLink}
-            href={paths.dashboard.course.category.edit(row.id)}
-            underline="none"
-            color="inherit"
-            sx={{ width: 1, display: 'flex', alignItems: 'center' }}
-          >
-            <ListItemIcon sx={{ margin: 0 }}>
-              <Iconify icon="solar:pen-bold" />
-            </ListItemIcon>
-            Edit
-          </Link>
-        </MenuItem>
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
 
-        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
-        </MenuItem>
-      </MenuList>
-    </CustomPopover>
-  );
+  inputData = stabilizedThis.map((el) => el[0]);
 
-  return (
-    <>
-      <TableRow>
-        <TableCell>{row.name}</TableCell>
-        <TableCell>
-          <Typography
-            sx={[
-              (theme) => ({
-                ...theme.mixins.maxLine({ line: 2 }),
-              }),
-            ]}
-            variant="body2"
-          >
-            {row.description}
-          </Typography>
-        </TableCell>
-        <TableCell>{fDate(row.createdAt)}</TableCell>
+  if (name) {
+    inputData = inputData.filter((user) => user.name.toLowerCase().includes(name.toLowerCase()));
+  }
 
-        <TableCell align="right" sx={{ pr: 1 }}>
-          <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </TableCell>
-      </TableRow>
-
-      {renderMenuActions()}
-    </>
-  );
+  return inputData;
 }

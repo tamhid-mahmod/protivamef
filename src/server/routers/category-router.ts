@@ -5,10 +5,16 @@ import { isDataConflict } from 'src/services/category';
 import { NewCategorySchema } from 'src/schemas/category';
 
 import { router } from '../__internals/router';
-import { privateProcedure } from '../procedures';
+import { publicProcedure, privateProcedure } from '../procedures';
 // ----------------------------------------------------------------------
 
 export const categoryRouter = router({
+  getCategories: publicProcedure.query(async ({ c }) => {
+    const categories = await db.category.findMany();
+
+    return c.superjson({ categories });
+  }),
+
   createCategory: privateProcedure.input(NewCategorySchema).mutation(async ({ c, input }) => {
     const { name, description, coverUrl } = input;
 

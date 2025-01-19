@@ -2,6 +2,10 @@ import type { IDateValue } from './common';
 
 // ----------------------------------------------------------------------
 
+export type ICategoryTableFilters = {
+  name: string;
+};
+
 export type ICategoryItem = {
   id: string;
   name: string;
