@@ -6,7 +6,9 @@ import { CategoryListView } from 'src/sections/category/view';
 
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `Category list | Dashboard - ${CONFIG.appName}` };
+export const metadata: Metadata = {
+  title: `Create a new category | Dashboard - ${CONFIG.appName}`,
+};
 
 export default function Page() {
   return <CategoryListView />;
