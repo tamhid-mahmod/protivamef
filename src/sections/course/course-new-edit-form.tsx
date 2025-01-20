@@ -2,6 +2,7 @@ import type { ICourseItem } from 'src/types/course';
 
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -18,6 +19,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { client } from 'src/lib/trpc';
+import { useGetCategories } from 'src/actions/category';
 import { NewCourseSchema, type NewCourseSchemaType } from 'src/schemas/course';
 
 import { toast } from 'src/components/snackbar';
@@ -44,6 +47,9 @@ type Props = {
 
 export function CourseNewEditForm({ currentCourse }: Props) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const { categories } = useGetCategories();
 
   const defaultValues: NewCourseSchemaType = {
     categoryId: '',
@@ -70,16 +76,26 @@ export function CourseNewEditForm({ currentCourse }: Props) {
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
+  const { mutate: handleCourse, isPending } = useMutation({
+    mutationFn: async (data: NewCourseSchemaType) => {
+      await client.course.createCourse.$post(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
       toast.success(currentCourse ? 'Course updated!' : 'Course added!');
+      if (!currentCourse) {
+        reset();
+      }
+      router.refresh();
       router.push(paths.dashboard.course.root);
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    handleCourse(data);
   });
 
   const renderDetails = () => (
@@ -117,7 +133,11 @@ export function CourseNewEditForm({ currentCourse }: Props) {
           <Field.Text name="code" label="Course code" />
 
           <Field.Select name="categoryId" label="Category">
-            <MenuItem value="tech">Tech</MenuItem>
+            {categories.map((item) => (
+              <MenuItem key={item.id} value={item.id}>
+                {item.name}
+              </MenuItem>
+            ))}
           </Field.Select>
 
           <Field.Select name="duration" label="Duration">
@@ -221,7 +241,7 @@ export function CourseNewEditForm({ currentCourse }: Props) {
         type="submit"
         variant="contained"
         size="large"
-        loading={isSubmitting}
+        loading={isSubmitting || isPending}
       >
         {!currentCourse ? 'Create course' : 'Save changes'}
       </LoadingButton>

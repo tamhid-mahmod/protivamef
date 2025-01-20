@@ -17,8 +17,8 @@ model Centre {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  division Division? @relation(fields: [divisionId], references: [id])
-  district District? @relation(fields: [districtId], references: [id])
+  division Division @relation(fields: [divisionId], references: [id])
+  district District @relation(fields: [districtId], references: [id])
 
   @@index([divisionId, districtId])
   @@unique([code, email])

@@ -4,6 +4,7 @@ model Category {
   description   String
   coverUrl      String
   slug          String          @unique
+  Courses       Course[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
