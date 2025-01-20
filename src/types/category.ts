@@ -11,6 +11,7 @@ export type ICategoryItem = {
   name: string;
   description: string;
   coverUrl: string;
+  slug: string;
   createdAt: IDateValue | Date;
   updatedAt: IDateValue | Date;
 };

@@ -36,6 +36,8 @@ export const categoryRouter = router({
   createCategory: privateProcedure.input(NewCategorySchema).mutation(async ({ c, input }) => {
     const { name, description, coverUrl } = input;
 
+    const slug = name.toLowerCase().replace(/\s+/g, '-');
+
     try {
       const existingCategory = await isDataConflict(name);
 
@@ -48,6 +50,7 @@ export const categoryRouter = router({
           name,
           description,
           coverUrl: coverUrl as string,
+          slug,
         },
       });
 
@@ -74,6 +77,8 @@ export const categoryRouter = router({
         throw new HTTPException(409, { message: 'Category with similar data already exists.' });
       }
 
+      const slug = name.toLowerCase().replace(/\s+/g, '-');
+
       await db.category.update({
         where: {
           id: categoryId,
@@ -82,6 +87,7 @@ export const categoryRouter = router({
           ...(name && { name }),
           ...(description && { description }),
           ...(coverUrl && { coverUrl: coverUrl as string }),
+          ...(slug && { slug }),
         },
       });
 
