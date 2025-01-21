@@ -2,14 +2,14 @@ import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 
-import { CategoryListView } from 'src/sections/category/view';
+import { CourseListView } from 'src/sections/course/view';
 
 // ----------------------------------------------------------------------
 
 export const metadata: Metadata = {
-  title: `Category list | Dashboard - ${CONFIG.appName}`,
+  title: `Course list | Dashboard - ${CONFIG.appName}`,
 };
 
 export default function Page() {
-  return <CategoryListView />;
+  return <CourseListView />;
 }

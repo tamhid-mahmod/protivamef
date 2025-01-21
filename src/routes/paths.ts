@@ -32,6 +32,7 @@ export const paths = {
     },
     course: {
       root: `${ROOTS.DASHBOARD}/course`,
+      edit: (id: string) => `${ROOTS.DASHBOARD}/course/${id}/edit`,
       new: `${ROOTS.DASHBOARD}/course/new`,
       category: {
         root: `${ROOTS.DASHBOARD}/course/category`,

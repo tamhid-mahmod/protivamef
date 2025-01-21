@@ -5,10 +5,26 @@ import { isDataConflict } from 'src/services/course';
 import { NewCourseSchema } from 'src/schemas/course';
 
 import { router } from '../__internals/router';
-import { privateProcedure } from '../procedures';
+import { publicProcedure, privateProcedure } from '../procedures';
 // ----------------------------------------------------------------------
 
 export const courseRouter = router({
+  getCourses: publicProcedure.query(async ({ c }) => {
+    const courses = await db.course.findMany();
+
+    return c.superjson({ courses });
+  }),
+
+  getCoursesWithCategory: publicProcedure.query(async ({ c }) => {
+    const coursesWithCategory = await db.course.findMany({
+      include: {
+        category: true,
+      },
+    });
+
+    return c.superjson({ coursesWithCategory });
+  }),
+
   createCourse: privateProcedure.input(NewCourseSchema).mutation(async ({ c, input }) => {
     const { categoryId, title, code, duration, qualification, fee, feeBase, description, publish } =
       input;
