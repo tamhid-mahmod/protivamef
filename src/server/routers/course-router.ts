@@ -1,8 +1,14 @@
+import { z as zod } from 'zod';
 import { HTTPException } from 'hono/http-exception';
 
 import { db } from 'src/lib/db';
 import { getCourseById, isDataConflict } from 'src/services/course';
-import { NewCourseSchema, DeleteCourseSchema, DeleteCoursesSchema } from 'src/schemas/course';
+import {
+  NewCourseSchema,
+  UpdateCourseSchema,
+  DeleteCourseSchema,
+  DeleteCoursesSchema,
+} from 'src/schemas/course';
 
 import { router } from '../__internals/router';
 import { publicProcedure, privateProcedure } from '../procedures';
@@ -14,6 +20,20 @@ export const courseRouter = router({
 
     return c.superjson({ courses });
   }),
+
+  getCourseDetails: publicProcedure
+    .input(zod.object({ courseId: zod.string().min(1) }))
+    .query(async ({ c, input }) => {
+      const { courseId } = input;
+
+      const course = await getCourseById(courseId);
+
+      if (!course) {
+        throw new HTTPException(404, { message: 'The resource does not exist.' });
+      }
+
+      return c.json({ course });
+    }),
 
   getCoursesWithCategory: publicProcedure.query(async ({ c }) => {
     const coursesWithCategory = await db.course.findMany({
@@ -53,6 +73,57 @@ export const courseRouter = router({
       return c.json({ success: true, course: newCourse }, 201);
     } catch (error) {
       console.error('Error creating course:', error);
+      throw error;
+    }
+  }),
+
+  updateCourse: privateProcedure.input(UpdateCourseSchema).mutation(async ({ c, input }) => {
+    const {
+      courseId,
+      categoryId,
+      title,
+      code,
+      duration,
+      qualification,
+      fee,
+      feeBase,
+      publish,
+      description,
+    } = input;
+
+    try {
+      const existingCourse = await getCourseById(courseId);
+
+      if (!existingCourse) {
+        throw new HTTPException(404, { message: 'The resource to be deleted does not exist.' });
+      }
+
+      const existingConflictCourse = await isDataConflict(code, existingCourse.id);
+
+      if (existingConflictCourse) {
+        throw new HTTPException(409, { message: 'Course with similar data already exists.' });
+      }
+
+      await db.course.update({
+        where: {
+          id: courseId,
+        },
+        data: {
+          ...(categoryId && { categoryId }),
+          ...(title && { title }),
+          ...(code && { code }),
+          ...(duration && { duration }),
+          ...(qualification && { qualification }),
+          ...(fee && { fee }),
+          ...(feeBase && { feeBase }),
+          ...(publish && { publish }),
+          ...(description && { description }),
+        },
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error('Error updating course:', error);
       throw error;
     }
   }),

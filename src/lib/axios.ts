@@ -39,4 +39,7 @@ export const endpoints = {
   category: {
     details: '/api/category/getCategoryDetails',
   },
+  course: {
+    details: '/api/course/getCourseDetails',
+  },
 };

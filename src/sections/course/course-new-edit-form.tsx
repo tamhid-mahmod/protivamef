@@ -21,7 +21,11 @@ import { useRouter } from 'src/routes/hooks';
 
 import { client } from 'src/lib/trpc';
 import { useGetCategories } from 'src/actions/category';
-import { NewCourseSchema, type NewCourseSchemaType } from 'src/schemas/course';
+import {
+  NewCourseSchema,
+  type NewCourseSchemaType,
+  type UpdateCourseSchemaType,
+} from 'src/schemas/course';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
@@ -77,8 +81,12 @@ export function CourseNewEditForm({ currentCourse }: Props) {
   } = methods;
 
   const { mutate: handleCourse, isPending } = useMutation({
-    mutationFn: async (data: NewCourseSchemaType) => {
-      await client.course.createCourse.$post(data);
+    mutationFn: async (data: UpdateCourseSchemaType | NewCourseSchemaType) => {
+      if ('courseId' in data && currentCourse) {
+        await client.course.updateCourse.$post(data);
+      } else {
+        await client.course.createCourse.$post(data);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
@@ -95,7 +103,11 @@ export function CourseNewEditForm({ currentCourse }: Props) {
   });
 
   const onSubmit = handleSubmit(async (data) => {
-    handleCourse(data);
+    if (currentCourse) {
+      handleCourse({ courseId: currentCourse.id, ...data });
+    } else {
+      handleCourse(data);
+    }
   });
 
   const renderDetails = () => (
