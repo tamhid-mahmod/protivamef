@@ -6,6 +6,7 @@ import type { ICourseTableFilters, ICourseWithCategoryItem } from 'src/types/cou
 import { varAlpha } from 'minimal-shared/utils';
 import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -20,6 +21,7 @@ import IconButton from '@mui/material/IconButton';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { client } from 'src/lib/trpc';
 import { useGetCategories } from 'src/actions/category';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useGetCoursesWithCategory } from 'src/actions/course';
@@ -67,6 +69,7 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 
 export function CourseListView() {
   const table = useTable();
+  const queryClient = useQueryClient();
 
   const confirmDialog = useBoolean();
 
@@ -101,18 +104,33 @@ export function CourseListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
-      setTableData(deleteRow);
+  const { mutate: handleDeleteRow } = useMutation({
+    mutationFn: async (courseId: string) => {
+      await client.course.deleteCourse.$post({ courseId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast.success('Course deleted!');
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
-  );
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const { mutate: handleDeleteCourseRows } = useMutation({
+    mutationFn: async (courseIds: [string, ...string[]]) => {
+      await client.course.deleteCourses.$post({ courseIds });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast.success('All selected courses are deleted!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
@@ -122,15 +140,15 @@ export function CourseListView() {
       .map((row) => row.id);
 
     if (deleteIds.length > 0) {
-      // TODO
+      handleDeleteCourseRows(deleteIds as [string, ...string[]]);
     } else {
-      toast.error('No centres selected for deletion.');
+      toast.error('No courses selected for deletion.');
     }
 
     setTableData(deleteRows);
 
     table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  }, [dataFiltered.length, dataInPage.length, table, tableData, handleDeleteCourseRows]);
 
   const handleFilterPublish = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
