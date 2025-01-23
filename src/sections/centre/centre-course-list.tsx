@@ -1,9 +1,14 @@
 import type { ICentreCourseItem } from 'src/types/centre';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Pagination, { paginationClasses } from '@mui/material/Pagination';
+
+import { client } from 'src/lib/trpc';
+
+import { toast } from 'src/components/snackbar';
 
 import { CentreCourseItem } from './centre-course-item';
 
@@ -14,6 +19,8 @@ type Props = {
 };
 
 export function CentreCourseList({ assignedCourses }: Props) {
+  const queryClient = useQueryClient();
+
   const ITEMS_PER_PAGE = 12;
 
   // State for current page
@@ -23,7 +30,7 @@ export function CentreCourseList({ assignedCourses }: Props) {
   const totalPages = Math.ceil(assignedCourses.length / ITEMS_PER_PAGE);
 
   // Get the courses for the current page
-  const paginatedCourses = assignedCourses.slice(
+  const paginatedData = assignedCourses.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
@@ -32,9 +39,18 @@ export function CentreCourseList({ assignedCourses }: Props) {
     setCurrentPage(value); // Update current page
   };
 
-  const handleDelete = useCallback((id: string) => {
-    console.info('DELETE', id);
-  }, []);
+  const { mutate: handleDelete } = useMutation({
+    mutationFn: async (centreCourseId: string) => {
+      await client.centre.deleteCentreCourse.$post({ centreCourseId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['centre-courses'] });
+      toast.success('Course unsigned!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   return (
     <>
@@ -49,11 +65,11 @@ export function CentreCourseList({ assignedCourses }: Props) {
           },
         }}
       >
-        {paginatedCourses.map((course) => (
+        {paginatedData.map((item) => (
           <CentreCourseItem
-            key={course.id}
-            course={course}
-            onUnsigned={() => handleDelete(course.id)}
+            key={item.id}
+            centreCourse={item}
+            onUnsigned={() => handleDelete(item.id)}
           />
         ))}
       </Box>

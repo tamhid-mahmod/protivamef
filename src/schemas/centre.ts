@@ -76,3 +76,11 @@ export type GetCentreCourseSchemaType = zod.infer<typeof GetCentreCourseSchema>;
 export const GetCentreCourseSchema = zod.object({
   centreId: zod.string().min(1, { message: 'Centre id is Required!' }),
 });
+
+// ----------------------------------------------------------------------
+
+export type DeleteCentreCourseSchemaType = zod.infer<typeof DeleteCentreCourseSchema>;
+
+export const DeleteCentreCourseSchema = zod.object({
+  centreCourseId: zod.string().min(1, { message: 'Centre course id is Required!' }),
+});

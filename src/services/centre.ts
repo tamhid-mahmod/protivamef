@@ -1,4 +1,4 @@
-import type { ICentreItem } from 'src/types/centre';
+import type { ICentreItem, ICentreCourseItem } from 'src/types/centre';
 
 import { db } from 'src/lib/db';
 
@@ -55,6 +55,33 @@ export const getCentreById = async (id: string): Promise<ICentreItem | null> => 
     return centre;
   } catch (error) {
     console.error('Error retrieving centre by ID:', error);
+    throw new Error('Could not verify data.');
+  }
+};
+
+// ----------------------------------------------------------------------
+
+/**
+ * Retrieves a centre course from the database by its unique identifier.
+ *
+ * @param {string} id - The unique identifier of the centre course to be retrieved.
+ * @returns {Promise<ICentreCourseItem | null>} - A promise that resolves to the centre course object if found, or `null` if no match exists.
+ * @throws {Error} - Throws an error if the database query fails.
+ */
+export const getCentreCourseById = async (
+  id: string
+): Promise<Omit<ICentreCourseItem, 'course'> | null> => {
+  try {
+    // Check for a centre with matching criteria
+    const centreCourse = await db.centreCourse.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return centreCourse;
+  } catch (error) {
+    console.error('Error retrieving centre course by ID:', error);
     throw new Error('Could not verify data.');
   }
 };

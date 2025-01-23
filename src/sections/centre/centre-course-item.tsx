@@ -19,11 +19,11 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = {
-  course: ICentreCourseItem;
+  centreCourse: ICentreCourseItem;
   onUnsigned: () => void;
 };
 
-export function CentreCourseItem({ course, onUnsigned }: Props) {
+export function CentreCourseItem({ centreCourse, onUnsigned }: Props) {
   const menuActions = usePopover();
 
   const renderMenuActions = () => (
@@ -58,7 +58,7 @@ export function CentreCourseItem({ course, onUnsigned }: Props) {
         <Box sx={{ p: 3, pb: 2 }}>
           <Chip
             variant="soft"
-            label={course.course.code}
+            label={centreCourse.course.code}
             size="small"
             color="success"
             sx={{ mb: 2 }}
@@ -77,10 +77,10 @@ export function CentreCourseItem({ course, onUnsigned }: Props) {
                   }),
                 ]}
               >
-                {course.course.title}
+                {centreCourse.course.title}
               </Typography>
             }
-            secondary={`Assined date: ${fDate(course.createdAt)}`}
+            secondary={`Assined date: ${fDate(centreCourse.createdAt)}`}
             slotProps={{
               primary: {
                 typography: 'subtitle1',

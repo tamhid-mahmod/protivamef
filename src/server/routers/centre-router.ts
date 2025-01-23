@@ -2,7 +2,7 @@ import { z as zod } from 'zod';
 import { HTTPException } from 'hono/http-exception';
 
 import { db } from 'src/lib/db';
-import { getCentreById, isDataConflict } from 'src/services/centre';
+import { getCentreById, isDataConflict, getCentreCourseById } from 'src/services/centre';
 import {
   NewCentreSchema,
   UpdateCentreSchema,
@@ -10,6 +10,7 @@ import {
   DeleteCentresSchema,
   NewCentreCourseSchema,
   GetCentreCourseSchema,
+  DeleteCentreCourseSchema,
 } from 'src/schemas/centre';
 
 import { router } from '../__internals/router';
@@ -197,6 +198,31 @@ export const centreRouter = router({
         return c.json({ success: true }, 201);
       } catch (error) {
         console.error('Error creating centre course:', error);
+        throw error;
+      }
+    }),
+
+  deleteCentreCourse: privateProcedure
+    .input(DeleteCentreCourseSchema)
+    .mutation(async ({ c, input }) => {
+      const { centreCourseId } = input;
+
+      try {
+        const existingCentreCourse = await getCentreCourseById(centreCourseId);
+
+        if (!existingCentreCourse) {
+          throw new HTTPException(404, { message: 'The resource to be deleted does not exist.' });
+        }
+
+        await db.centreCourse.delete({
+          where: {
+            id: existingCentreCourse.id,
+          },
+        });
+
+        return c.json({ success: true });
+      } catch (error) {
+        console.error('Error deleting centre course:', error);
         throw error;
       }
     }),
