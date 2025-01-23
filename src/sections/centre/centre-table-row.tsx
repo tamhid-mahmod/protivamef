@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
@@ -29,11 +30,19 @@ type Props = {
   row: ICentresWithDivisionAndDistrict;
   selected: boolean;
   editHref: string;
+  assignHref: string;
   onSelectRow: () => void;
   onDeleteRow: () => void;
 };
 
-export function CentreTableRow({ row, selected, onSelectRow, onDeleteRow, editHref }: Props) {
+export function CentreTableRow({
+  row,
+  selected,
+  onSelectRow,
+  onDeleteRow,
+  editHref,
+  assignHref,
+}: Props) {
   const confirmDialog = useBoolean();
   const menuActions = usePopover();
 
@@ -111,11 +120,20 @@ export function CentreTableRow({ row, selected, onSelectRow, onDeleteRow, editHr
     >
       <MenuList>
         <li>
+          <MenuItem component={RouterLink} href={assignHref} onClick={menuActions.onClose}>
+            <Iconify icon="solar:add-circle-bold" />
+            Assign course
+          </MenuItem>
+        </li>
+
+        <li>
           <MenuItem component={RouterLink} href={editHref} onClick={menuActions.onClose}>
             <Iconify icon="solar:pen-bold" />
             Edit
           </MenuItem>
         </li>
+
+        <Divider sx={{ borderStyle: 'dashed' }} />
 
         <MenuItem
           onClick={() => {

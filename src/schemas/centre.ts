@@ -1,3 +1,5 @@
+import type { ICourseItem } from 'src/types/course';
+
 import { z as zod } from 'zod';
 import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
@@ -55,4 +57,22 @@ export const DeleteCentresSchema = zod.object({
   centreIds: zod
     .array(zod.string().min(1, { message: 'Centres id is required!' }))
     .nonempty({ message: 'At least one ID is required!' }),
+});
+
+// ----------------------------------------------------------------------
+// centre-course
+
+export type NewCentreCourseSchemaType = zod.infer<typeof NewCentreCourseSchema>;
+
+export const NewCentreCourseSchema = zod.object({
+  centreId: zod.string().min(1, { message: 'Centre id is Required!' }),
+  courses: zod.custom<ICourseItem>().array().min(1, { message: 'Choose at least one course!' }),
+});
+
+// ----------------------------------------------------------------------
+
+export type GetCentreCourseSchemaType = zod.infer<typeof GetCentreCourseSchema>;
+
+export const GetCentreCourseSchema = zod.object({
+  centreId: zod.string().min(1, { message: 'Centre id is Required!' }),
 });

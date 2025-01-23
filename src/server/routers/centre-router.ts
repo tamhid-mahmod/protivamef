@@ -8,6 +8,8 @@ import {
   UpdateCentreSchema,
   DeleteCentreSchema,
   DeleteCentresSchema,
+  NewCentreCourseSchema,
+  GetCentreCourseSchema,
 } from 'src/schemas/centre';
 
 import { router } from '../__internals/router';
@@ -159,4 +161,40 @@ export const centreRouter = router({
       throw error;
     }
   }),
+
+  // centre-course
+  getAssignedCourses: publicProcedure.input(GetCentreCourseSchema).query(async ({ c, input }) => {
+    const { centreId } = input;
+
+    const assignedCourses = await db.centreCourse.findMany({
+      where: {
+        centreId,
+      },
+    });
+
+    return c.superjson({ assignedCourses });
+  }),
+
+  assignCentreCourse: privateProcedure
+    .input(NewCentreCourseSchema)
+    .mutation(async ({ c, input }) => {
+      const { centreId, courses } = input;
+
+      try {
+        const dataToInsert = courses.map((course) => ({
+          centreId,
+          courseId: course.id,
+        }));
+
+        await db.centreCourse.createMany({
+          data: dataToInsert,
+          skipDuplicates: true, // Avoid duplicate entries if the same pair exists
+        });
+
+        return c.json({ success: true }, 201);
+      } catch (error) {
+        console.error('Error creating centre course:', error);
+        throw error;
+      }
+    }),
 });

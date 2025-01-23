@@ -44,6 +44,7 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/centre`,
       edit: (id: string) => `${ROOTS.DASHBOARD}/centre/${id}/edit`,
       new: `${ROOTS.DASHBOARD}/centre/new`,
+      assign: (id: string) => `${ROOTS.DASHBOARD}/centre/${id}/assign-course`,
     },
     region: {
       root: `${ROOTS.DASHBOARD}/division`,

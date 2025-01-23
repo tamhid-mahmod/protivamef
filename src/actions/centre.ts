@@ -1,4 +1,4 @@
-import type { ICentresWithDivisionAndDistrict } from 'src/types/centre';
+import type { ICentreCourseItem, ICentresWithDivisionAndDistrict } from 'src/types/centre';
 
 import { useMemo } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
@@ -32,6 +32,40 @@ export function useGetCentresWithDivisionAndDistrict() {
       centresError: error,
       centresValidating: isValidating,
       centresEmpty: !isLoading && !isValidating && data?.centres.length,
+    }),
+    [data, error, isLoading, isValidating]
+  );
+
+  return memoizedValue;
+}
+
+// ----------------------------------------------------------------------
+
+type AssignedCoursesData = {
+  assignedCourses: ICentreCourseItem[];
+};
+
+export function useGetAssignedCourses(centreId: string) {
+  const {
+    data,
+    isPending: isLoading,
+    error,
+    isFetching: isValidating,
+  }: UseQueryResult<AssignedCoursesData> = useQuery({
+    queryKey: ['centre-courses'],
+    queryFn: async () => {
+      const res = await client.centre.getAssignedCourses.$get({ centreId });
+      return await res.json();
+    },
+  });
+
+  const memoizedValue = useMemo(
+    () => ({
+      assignedCourses: data?.assignedCourses || [],
+      assignedCoursesLoading: isLoading,
+      assignedCoursesError: error,
+      assignedCoursesValidating: isValidating,
+      assignedCoursesEmpty: !isLoading && !isValidating && data?.assignedCourses.length,
     }),
     [data, error, isLoading, isValidating]
   );

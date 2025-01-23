@@ -14,6 +14,7 @@ model Course {
   feeBase       Decimal?
   publish       CoursePublish   @default(draft)
   description   String
+  centres       CentreCourse[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

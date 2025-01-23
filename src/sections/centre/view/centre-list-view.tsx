@@ -317,6 +317,7 @@ export function CentreListView() {
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
                         editHref={paths.dashboard.centre.edit(row.id)}
+                        assignHref={paths.dashboard.centre.assign(row.id)}
                       />
                     ))}
 

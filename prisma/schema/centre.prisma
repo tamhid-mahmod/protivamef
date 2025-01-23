@@ -13,6 +13,7 @@ model Centre {
   publish       CentrePublish   @default(draft)
   divisionId    String
   districtId    String
+  courses       CentreCourse[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

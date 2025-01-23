@@ -1,0 +1,12 @@
+model CentreCourse {
+  id            String          @id @default(cuid())
+  centreId      String
+  courseId      String
+
+  createdAt DateTime @default(now())
+
+  centre Centre @relation(fields: [centreId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([centreId, courseId])
+}

@@ -29,3 +29,10 @@ export type ICentresWithDivisionAndDistrict = ICentreItem & {
   division: IDivisionItem;
   district: IDistrictItem;
 };
+
+export type ICentreCourseItem = {
+  id: string;
+  centreId: string;
+  courseId: string;
+  createdAt: IDateValue | Date;
+};
