@@ -86,7 +86,7 @@ export function CentreCourseForm({ centreId }: Props) {
           multiple
           disableCloseOnSelect
           options={availableCourses}
-          getOptionLabel={(option) => option.id}
+          getOptionLabel={(option) => option.code}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           renderOption={(props, option, { selected }) => (
             <li {...props} key={option.id}>
