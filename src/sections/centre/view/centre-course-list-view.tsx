@@ -7,6 +7,7 @@ import Grid from '@mui/material/Grid2';
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useGetAssignedCourses } from 'src/actions/centre';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
@@ -20,6 +21,8 @@ type Props = {
 };
 
 export function CentreCourseListView({ centre: currentCentre }: Props) {
+  const { assignedCourses } = useGetAssignedCourses(currentCentre.id);
+
   return (
     <DashboardContent maxWidth="xl">
       <CustomBreadcrumbs
@@ -35,7 +38,7 @@ export function CentreCourseListView({ centre: currentCentre }: Props) {
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 8 }}>
-          <CentreCourseList courses={[]} />
+          <CentreCourseList assignedCourses={assignedCourses} />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <CentreCourseForm centreId={currentCentre.id} />

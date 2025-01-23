@@ -170,6 +170,9 @@ export const centreRouter = router({
       where: {
         centreId,
       },
+      include: {
+        course: true,
+      },
     });
 
     return c.superjson({ assignedCourses });

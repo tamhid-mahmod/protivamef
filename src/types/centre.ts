@@ -1,4 +1,5 @@
 import type { IDateValue } from './common';
+import type { ICourseItem } from './course';
 import type { IDistrictItem } from './district';
 import type { IDivisionItem } from './division';
 
@@ -34,5 +35,6 @@ export type ICentreCourseItem = {
   id: string;
   centreId: string;
   courseId: string;
+  course: ICourseItem;
   createdAt: IDateValue | Date;
 };

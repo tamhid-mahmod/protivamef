@@ -1,4 +1,4 @@
-import type { ICourseItem } from 'src/types/course';
+import type { ICentreCourseItem } from 'src/types/centre';
 
 import { usePopover } from 'minimal-shared/hooks';
 
@@ -19,7 +19,7 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = {
-  course: ICourseItem;
+  course: ICentreCourseItem;
   onUnsigned: () => void;
 };
 
@@ -41,7 +41,7 @@ export function CentreCourseItem({ course, onUnsigned }: Props) {
           }}
           sx={{ color: 'error.main' }}
         >
-          <Iconify icon="solar:trash-bin-trash-bold" />
+          <Iconify icon="solar:paperclip-rounded-bold" />
           Unsigned
         </MenuItem>
       </MenuList>
@@ -58,7 +58,7 @@ export function CentreCourseItem({ course, onUnsigned }: Props) {
         <Box sx={{ p: 3, pb: 2 }}>
           <Chip
             variant="soft"
-            label="103"
+            label={course.course.code}
             size="small"
             color="success"
             sx={{ mb: 2 }}
@@ -77,10 +77,10 @@ export function CentreCourseItem({ course, onUnsigned }: Props) {
                   }),
                 ]}
               >
-                Certificate in Auto CAD (2D and 3D)
+                {course.course.title}
               </Typography>
             }
-            secondary={`Assined date: ${fDate(new Date())}`}
+            secondary={`Assined date: ${fDate(course.createdAt)}`}
             slotProps={{
               primary: {
                 typography: 'subtitle1',
