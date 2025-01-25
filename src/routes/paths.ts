@@ -8,8 +8,19 @@ const ROOTS = {
 // ----------------------------------------------------------------------
 
 export const paths = {
+  missionAndVision: '/mission-and-vision',
+  howToApply: '/how-to-apply',
+  chairman: '/chairman',
+  result: '/result',
+  applyOnline: '/apply-online',
+  downloadForm: '/pdf/apply-form.pdf',
+  about: '/about-us',
   contact: '/contact-us',
   faqs: '/faqs',
+  course: {
+    root: `/course`,
+    details: (id: string) => `/course/${id}`,
+  },
   // AUTH
   auth: {
     signIn: `${ROOTS.AUTH}/sign-in`,
