@@ -24,6 +24,20 @@ export const districtRouter = router({
     return c.superjson({ districts });
   }),
 
+  getDistrictsByDivision: publicProcedure
+    .input(zod.object({ divisionId: zod.string() }))
+    .query(async ({ c, input }) => {
+      const { divisionId } = input;
+
+      const districts = await db.district.findMany({
+        where: {
+          divisionId,
+        },
+      });
+
+      return c.json({ districts });
+    }),
+
   getDistrictsWithDivision: publicProcedure.query(async ({ c }) => {
     const districts = await db.district.findMany({
       include: {

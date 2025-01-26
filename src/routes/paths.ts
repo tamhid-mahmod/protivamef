@@ -8,6 +8,7 @@ const ROOTS = {
 // ----------------------------------------------------------------------
 
 export const paths = {
+  rulesandRegulation: '/rules-and-regulation',
   missionAndVision: '/mission-and-vision',
   howToApply: '/how-to-apply',
   chairman: '/chairman',

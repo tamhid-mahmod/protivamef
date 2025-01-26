@@ -35,11 +35,16 @@ export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
 export const endpoints = {
   centre: {
     details: '/api/centre/centreDetails',
+    listByDivisionAndDistrict: '/api/centre/getCentresByDivisionAndDistrict',
+    listCoursesByCentre: '/api/centre/getCoursesByCentre',
   },
   category: {
     details: '/api/category/getCategoryDetails',
   },
   course: {
     details: '/api/course/getCourseDetails',
+  },
+  district: {
+    listByDivision: '/api/district/getDistrictsByDivision',
   },
 };

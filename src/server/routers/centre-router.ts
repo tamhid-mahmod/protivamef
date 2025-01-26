@@ -18,6 +18,22 @@ import { publicProcedure, privateProcedure } from '../procedures';
 // ----------------------------------------------------------------------
 
 export const centreRouter = router({
+  getCentresByDivisionAndDistrict: publicProcedure
+    .input(zod.object({ divisionId: zod.string(), districtId: zod.string() }))
+    .query(async ({ c, input }) => {
+      const { divisionId, districtId } = input;
+
+      const centres = await db.centre.findMany({
+        where: {
+          divisionId,
+          districtId,
+          publish: 'published',
+        },
+      });
+
+      return c.json({ centres });
+    }),
+
   centreDetails: publicProcedure
     .input(zod.object({ centreId: zod.string().min(1) }))
     .query(async ({ c, input }) => {
@@ -164,6 +180,27 @@ export const centreRouter = router({
   }),
 
   // centre-course
+
+  getCoursesByCentre: publicProcedure
+    .input(zod.object({ centreId: zod.string() }))
+    .query(async ({ c, input }) => {
+      const { centreId } = input;
+
+      const centreCourses = await db.centreCourse.findMany({
+        where: {
+          centreId,
+          course: {
+            publish: 'published',
+          },
+        },
+        include: {
+          course: true,
+        },
+      });
+
+      return c.json({ centreCourses });
+    }),
+
   getAssignedCourses: publicProcedure.input(GetCentreCourseSchema).query(async ({ c, input }) => {
     const { centreId } = input;
 
