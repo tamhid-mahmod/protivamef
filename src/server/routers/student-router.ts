@@ -5,8 +5,14 @@ import { z as zod } from 'zod';
 import { HTTPException } from 'hono/http-exception';
 
 import { db } from 'src/lib/db';
-import { getStudentById } from 'src/services/student';
-import { NewStudentSchema, DeleteStudentSchema, DeleteStudentsSchema } from 'src/schemas/student';
+import { getStudentById, getStudentEducationById } from 'src/services/student';
+import {
+  NewStudentSchema,
+  DeleteStudentSchema,
+  DeleteStudentsSchema,
+  UpdateStudentEducationSchema,
+  UpdateStudentInformationSchema,
+} from 'src/schemas/student';
 
 import { router } from '../__internals/router';
 import { publicProcedure, privateProcedure } from '../procedures';
@@ -214,6 +220,85 @@ export const studentRouter = router({
       throw error;
     }
   }),
+
+  updateStudentInformation: privateProcedure
+    .input(UpdateStudentInformationSchema)
+    .mutation(async ({ c, input }) => {
+      const {
+        id,
+        fullName,
+        dateOfBirth,
+        gender,
+        address,
+        religion,
+        fatherName,
+        motherName,
+        status,
+        imageUrl,
+        session,
+      } = input;
+
+      try {
+        const existingStudent = await getStudentById(id);
+
+        if (!existingStudent) {
+          throw new HTTPException(404, { message: 'The resource to be update does not exist.' });
+        }
+
+        await db.student.update({
+          where: {
+            id,
+          },
+          data: {
+            ...(fullName && { fullName }),
+            ...(dateOfBirth && { dateOfBirth: dateOfBirth as Date }),
+            ...(gender && { gender }),
+            ...(religion && { religion }),
+            ...(address && { address }),
+            ...(fatherName && { fatherName }),
+            ...(motherName && { motherName }),
+            ...(status && { status }),
+            ...(imageUrl && { imageUrl: imageUrl as string }),
+            ...(session && { session }),
+          },
+        });
+
+        return c.json({ success: true });
+      } catch (error) {
+        console.error('Error updating student:', error);
+        throw error;
+      }
+    }),
+
+  updateStudentEducation: privateProcedure
+    .input(UpdateStudentEducationSchema)
+    .mutation(async ({ c, input }) => {
+      const { id, examination, board, passYear } = input;
+
+      try {
+        const existingStudentEducation = await getStudentEducationById(id);
+
+        if (!existingStudentEducation) {
+          throw new HTTPException(404, { message: 'The resource to be update does not exist.' });
+        }
+
+        await db.studentEducationBackground.update({
+          where: {
+            id,
+          },
+          data: {
+            ...(examination && { examination }),
+            ...(board && { board }),
+            ...(passYear && { passYear }),
+          },
+        });
+
+        return c.json({ success: true });
+      } catch (error) {
+        console.error('Error updating student education:', error);
+        throw error;
+      }
+    }),
 
   deleteStudent: privateProcedure.input(DeleteStudentSchema).mutation(async ({ c, input }) => {
     const { studentId } = input;

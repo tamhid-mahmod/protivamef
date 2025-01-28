@@ -1,4 +1,4 @@
-import type { IStudentItem } from 'src/types/student';
+import type { IStudentItem, IStudentEducationBackgroundItem } from 'src/types/student';
 
 import { db } from 'src/lib/db';
 
@@ -22,7 +22,34 @@ export const getStudentById = async (id: string): Promise<IStudentItem | null> =
 
     return student;
   } catch (error) {
-    console.error('Error retrieving centre by ID:', error);
+    console.error('Error retrieving student by ID:', error);
+    throw new Error('Could not verify data.');
+  }
+};
+
+// ----------------------------------------------------------------------
+
+/**
+ * Retrieves a student education from the database by its unique identifier.
+ *
+ * @param {string} id - The unique identifier of the student education to be retrieved.
+ * @returns {Promise<Object | null>} - A promise that resolves to the student education object if found, or `null` if no match exists.
+ * @throws {Error} - Throws an error if the database query fails.
+ */
+export const getStudentEducationById = async (
+  id: string
+): Promise<IStudentEducationBackgroundItem | null> => {
+  try {
+    // Check for a centre with matching criteria
+    const studentEducation = await db.studentEducationBackground.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return studentEducation;
+  } catch (error) {
+    console.error('Error retrieving student education by ID:', error);
     throw new Error('Could not verify data.');
   }
 };

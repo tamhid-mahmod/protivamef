@@ -52,33 +52,16 @@ export type IStudentItem = {
   iAgree: boolean;
   studentEducationBackgroundId: string;
   studentAppliedForId: string;
+  session: string | null;
   createdAt: IDateValue | Date;
   updatedAt: IDateValue | Date;
 };
 
-export type IStudentAllItem = {
-  id: string;
-  rollNumber: string;
-  imageUrl: string | null;
-  fullName: string;
-  dateOfBirth: IDateValue | Date;
-  gender: string;
-  email: string | null;
-  phoneNumber: string | null;
-  address: string;
-  religion: string;
-  fatherName: string;
-  motherName: string;
-  status: 'pending' | 'registered' | 'rejected';
-  iAgree: boolean;
-  studentEducationBackgroundId: string;
-  studentAppliedForId: string;
+export type IStudentAllItem = IStudentItem & {
   educationBackground: IStudentEducationBackgroundItem;
   appliedFor: IStudentAppliedForItem;
   division: IDivisionItem | null;
   district: IDistrictItem | null;
   centre: ICentreItem | null;
   course: ICourseItem | null;
-  createdAt: IDateValue | Date;
-  updatedAt: IDateValue | Date;
 };

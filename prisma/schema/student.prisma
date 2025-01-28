@@ -17,6 +17,7 @@ model Student {
   religion                      String
   fatherName                    String
   motherName                    String
+  session                       String?
   status                        StudentStatus  @default(pending)
   iAgree                        Boolean
   studentEducationBackgroundId  String         @unique

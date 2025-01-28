@@ -89,6 +89,77 @@ export const NewStudentSchema = zod.object({
 
 // ----------------------------------------------------------------------
 
+export type UpdateStudentInformationSchemaType = zod.infer<typeof UpdateStudentInformationSchema>;
+
+export const UpdateStudentInformationSchema = zod.object({
+  id: zod.string().min(1, { message: 'Student ID is required!' }),
+  fullName: zod
+    .string()
+    .min(1, { message: 'Full name is required!' })
+    .max(32, { message: 'Maximum 32 characters!' }),
+  dateOfBirth: zod.coerce
+    .date()
+    .nullable()
+    .transform((dateString, ctx) => {
+      const date = dayjs(dateString).format();
+
+      const stringToDate = zod.string().pipe(zod.coerce.date());
+
+      if (!dateString) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Date of birth is required!',
+        });
+        return null;
+      }
+
+      if (!stringToDate.safeParse(date).success) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.invalid_date,
+          message: 'Invalid Date!!',
+        });
+      }
+
+      return date;
+    })
+    .pipe(zod.union([zod.number(), zod.string(), zod.date(), zod.null()])),
+  gender: zod.string().min(1, { message: 'Gender is required!' }),
+  address: zod.string().min(1, { message: 'Address is required!' }),
+  religion: zod.string().min(1, { message: 'Religion is required!' }),
+  fatherName: zod.string().min(1, { message: "Father's name is required!" }),
+  motherName: zod.string().min(1, { message: "Mother's name is required!" }),
+  status: zod.enum(['pending', 'registered', 'rejected']),
+  imageUrl: zod.custom<File | string | null>().transform((data, ctx) => {
+    const hasFile = data instanceof File || (typeof data === 'string' && !!data.length);
+
+    if (!hasFile) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Passport size photo is required!',
+      });
+      return null;
+    }
+
+    return data;
+  }),
+
+  // optional
+  session: zod.string().optional().nullable(),
+});
+
+// ----------------------------------------------------------------------
+
+export type UpdateStudentEducationSchemaType = zod.infer<typeof UpdateStudentEducationSchema>;
+
+export const UpdateStudentEducationSchema = zod.object({
+  id: zod.string().min(1, { message: 'Student ID is required!' }),
+  examination: zod.string().min(1, { message: 'Examination is required!' }),
+  board: zod.string().min(1, { message: 'Board is required!' }),
+  passYear: zod.string().min(1, { message: 'Year is required!' }),
+});
+
+// ----------------------------------------------------------------------
+
 export type DeleteStudentSchemaType = zod.infer<typeof DeleteStudentSchema>;
 
 export const DeleteStudentSchema = zod.object({
