@@ -22,7 +22,7 @@
     "tsc:print": "npx tsc --showConfig",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
-    "db:reset": "npx prisma migrate reset",
+    "db:dev": "npx prisma migrate dev",
     "db:studio": "npx prisma studio",
     "postinstall": "prisma generate"
   },
@@ -49,6 +49,7 @@
     "@mui/x-date-pickers": "^7.23.3",
     "@mui/x-tree-view": "^7.23.2",
     "@prisma/client": "^6.1.0",
+    "@react-pdf/renderer": "^4.1.6",
     "@tanstack/react-query": "^5.64.0",
     "@tiptap/core": "^2.11.0",
     "@tiptap/extension-code-block": "^2.11.0",

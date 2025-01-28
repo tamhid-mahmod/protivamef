@@ -2,24 +2,29 @@ import type { IDistrictItem } from 'src/types/district';
 import type { ICentreItem, ICentreCourseItem } from 'src/types/centre';
 
 import { useForm } from 'react-hook-form';
-import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
-import Stack, { type StackProps } from '@mui/material/Stack';
+import Box, { type BoxProps } from '@mui/material/Box';
 
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
+import { client } from 'src/lib/trpc';
+import { uploadImageToS3 } from 'src/actions/s3';
 import { useGetDivisions } from 'src/actions/division';
 import { getDistrictsByDivision } from 'src/actions/district-ssr';
 import { NewStudentSchema, type NewStudentSchemaType } from 'src/schemas/student';
 import { getCoursesByCentre, getCentresByDivisionAndDistrict } from 'src/actions/centre-ssr';
 
+import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
@@ -47,14 +52,16 @@ const BOARD_OPTIONS = [
   'DIBS(Dhaka)',
 ];
 
-const YEAR_OPTIONS = Array.from(
-  { length: new Date().getFullYear() - 1972 + 1 },
-  (_, i) => new Date().getFullYear() - i
+const YEAR_OPTIONS: string[] = Array.from({ length: new Date().getFullYear() - 1972 + 1 }, (_, i) =>
+  (new Date().getFullYear() - i).toString()
 );
 
 // ----------------------------------------------------------------------
 
 export default function ApplyForm() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
   const [districts, setDistricts] = useState<IDistrictItem[]>([]);
   const [centres, setCentres] = useState<ICentreItem[]>([]);
   const [courses, setCourses] = useState<ICentreCourseItem[]>([]);
@@ -77,7 +84,7 @@ export default function ApplyForm() {
     motherName: '',
     examination: '',
     board: '',
-    year: '',
+    passYear: '',
     roll: '',
     result: '',
     division: '',
@@ -92,7 +99,7 @@ export default function ApplyForm() {
     phoneNumber: '',
   };
 
-  const methods = useForm({
+  const methods = useForm<NewStudentSchemaType>({
     resolver: zodResolver(NewStudentSchema),
     defaultValues,
   });
@@ -161,63 +168,99 @@ export default function ApplyForm() {
     }
   }, [values.division, values.district, values.centre, setValue]);
 
+  const handleUploadImage = useCallback(async () => {
+    try {
+      const file = methods.getValues('imageUrl');
+
+      const formData = new FormData();
+      formData.append('file', file as File);
+
+      const imageUrl = await uploadImageToS3(formData, {
+        key: 'students',
+      });
+
+      return imageUrl;
+    } catch {
+      throw new Error('Failed to upload cover!');
+    }
+  }, [methods]);
+
+  const { mutate: handleStudent, isPending } = useMutation({
+    mutationFn: async (data: NewStudentSchemaType) => {
+      const response = await client.student.createStudent.$post(data);
+      return response.json();
+    },
+    onSuccess: ({ student }) => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      reset();
+      toast.success('Your application submitted!');
+      router.push(paths.apply.success(student.id));
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   const onSubmit = handleSubmit(async (data) => {
-    console.log('DATA', data);
-    reset();
+    try {
+      const imageUrl = await handleUploadImage();
+      if (imageUrl) {
+        data.imageUrl = imageUrl;
+      }
+      handleStudent(data);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   });
 
   const renderIntroduction = () => (
-    <Block label="Intruduction">
-      <Stack spacing={2}>
-        <Field.Text name="fullName" label="Full Name" />
+    <FieldContainer label="Introduction">
+      <Field.Text name="fullName" label="Full name" />
 
-        <Box
-          sx={{
-            rowGap: 2,
-            columnGap: 2,
-            display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
-          }}
-        >
-          <Field.DatePicker name="dateOfBirth" label="Date of Birth" />
+      <Box
+        sx={{
+          rowGap: 2,
+          columnGap: 2,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
+        }}
+      >
+        <Field.DatePicker name="dateOfBirth" label="Date of Birth" />
 
-          <Field.Select name="gender" label="Gender">
-            {GENDER_OPTIONS.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </Field.Select>
-        </Box>
-      </Stack>
-    </Block>
+        <Field.Select name="gender" label="Gender">
+          {GENDER_OPTIONS.map((option) => (
+            <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          ))}
+        </Field.Select>
+      </Box>
+    </FieldContainer>
   );
 
   const renderOptional = () => (
-    <Block label="(Optional)">
-      <Stack spacing={2}>
-        <Box
-          sx={{
-            rowGap: 2,
-            columnGap: 2,
-            display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
-          }}
-        >
-          <Field.Text name="email" label="Email address" />
+    <FieldContainer label="(Optional)">
+      <Box
+        sx={{
+          rowGap: 2,
+          columnGap: 2,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
+        }}
+      >
+        <Field.Text name="email" label="Email address" />
 
-          <Field.Phone fullWidth name="phoneNumber" label="Contact number" country="BD" />
-        </Box>
+        <Field.Phone fullWidth name="phoneNumber" label="Contact number" country="BD" />
+      </Box>
 
-        <Field.Text name="address" label="Address" />
+      <Field.Text name="address" label="Address" />
 
-        <Field.Text name="religion" label="Religion" />
-      </Stack>
-    </Block>
+      <Field.Text name="religion" label="Religion" />
+    </FieldContainer>
   );
 
   const renderParentsInformation = () => (
-    <Block label="Parents Information">
+    <FieldContainer label="Parents Information">
       <Box
         sx={{
           rowGap: 2,
@@ -230,102 +273,74 @@ export default function ApplyForm() {
 
         <Field.Text name="motherName" label="Mother's name" />
       </Box>
-    </Block>
+    </FieldContainer>
   );
 
   const renderEducation = () => (
-    <Block label="Education">
-      <Stack spacing={2}>
-        <Box
-          sx={{
-            rowGap: 2,
-            columnGap: 2,
-            display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' },
-          }}
-        >
-          <Field.Select name="examination" label="Examination">
-            {EXAMINATION_OPTIONS.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Field.Select>
+    <FieldContainer label="Education">
+      <Box
+        sx={{
+          rowGap: 2,
+          columnGap: 2,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' },
+        }}
+      >
+        <Field.Select name="examination" label="Examination">
+          {EXAMINATION_OPTIONS.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </Field.Select>
 
-          <Field.Select name="board" label="Board">
-            {BOARD_OPTIONS.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </Field.Select>
+        <Field.Select name="board" label="Board">
+          {BOARD_OPTIONS.map((option) => (
+            <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          ))}
+        </Field.Select>
 
-          <Field.Select name="year" label="Year">
-            {YEAR_OPTIONS.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </Field.Select>
-        </Box>
+        <Field.Select name="passYear" label="Year">
+          {YEAR_OPTIONS.map((option) => (
+            <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          ))}
+        </Field.Select>
+      </Box>
 
-        <Box
-          sx={{
-            rowGap: 2,
-            columnGap: 2,
-            display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
-          }}
-        >
-          <Field.Text name="roll" label="Roll" />
+      <Box
+        sx={{
+          rowGap: 2,
+          columnGap: 2,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
+        }}
+      >
+        <Field.Text name="roll" label="Roll" />
 
-          <Field.Text name="result" label="Result" />
-        </Box>
-      </Stack>
-    </Block>
+        <Field.Text name="result" label="Result" />
+      </Box>
+    </FieldContainer>
   );
 
   const renderApplyCentre = () => (
-    <Block label="Choose which center you want to apply">
-      <Stack spacing={2}>
-        <Box
-          sx={{
-            rowGap: 2,
-            columnGap: 2,
-            display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
-          }}
-        >
-          <Field.Select name="division" label="Divison">
-            {divisionsLoading ? (
-              <MenuItem>Loading....</MenuItem>
-            ) : (
-              divisions.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                  {option.name}
-                </MenuItem>
-              ))
-            )}
-          </Field.Select>
-
-          <Field.Select name="district" label="District">
-            {districtLoading ? (
-              <MenuItem>Loading....</MenuItem>
-            ) : (
-              districts.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                  {option.name}
-                </MenuItem>
-              ))
-            )}
-          </Field.Select>
-        </Box>
-
-        <Field.Select name="centre" label="Centre">
-          {centreLoading ? (
+    <FieldContainer label="Choose which center you want to apply">
+      <Box
+        sx={{
+          rowGap: 2,
+          columnGap: 2,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
+        }}
+      >
+        <Field.Select name="division" label="Divison">
+          {divisionsLoading ? (
             <MenuItem>Loading....</MenuItem>
           ) : (
-            centres.map((option) => (
+            divisions.map((option) => (
               <MenuItem key={option.id} value={option.id}>
                 {option.name}
               </MenuItem>
@@ -333,29 +348,53 @@ export default function ApplyForm() {
           )}
         </Field.Select>
 
-        <Field.Select name="course" label="Course">
-          {courseLoading ? (
+        <Field.Select name="district" label="District">
+          {districtLoading ? (
             <MenuItem>Loading....</MenuItem>
           ) : (
-            courses.map((option) => (
+            districts.map((option) => (
               <MenuItem key={option.id} value={option.id}>
-                ({option.course.code}) {option.course.title}
+                {option.name}
               </MenuItem>
             ))
           )}
         </Field.Select>
-      </Stack>
-    </Block>
+      </Box>
+
+      <Field.Select name="centre" label="Centre">
+        {centreLoading ? (
+          <MenuItem>Loading....</MenuItem>
+        ) : (
+          centres.map((option) => (
+            <MenuItem key={option.id} value={option.id}>
+              {option.name}
+            </MenuItem>
+          ))
+        )}
+      </Field.Select>
+
+      <Field.Select name="course" label="Course">
+        {courseLoading ? (
+          <MenuItem>Loading....</MenuItem>
+        ) : (
+          courses.map((option) => (
+            <MenuItem key={option.courseId} value={option.courseId}>
+              ({option.course.code}) {option.course.title}
+            </MenuItem>
+          ))
+        )}
+      </Field.Select>
+    </FieldContainer>
   );
 
   const renderUploadhoto = () => (
-    <Block label="Passport size photo">
+    <FieldContainer label="Passport size photo">
       <Field.Upload
         name="imageUrl"
         maxSize={3145728}
         onDelete={() => setValue('imageUrl', null, { shouldValidate: true })}
       />
-    </Block>
+    </FieldContainer>
   );
 
   const renderActions = () => (
@@ -372,7 +411,7 @@ export default function ApplyForm() {
         sx={{ alignSelf: 'end' }}
         type="submit"
         variant="contained"
-        loading={isSubmitting}
+        loading={isSubmitting || isPending}
       >
         Submit
       </LoadingButton>
@@ -418,29 +457,43 @@ export default function ApplyForm() {
       </Box>
     </Form>
   );
+}
 
-  // ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
-  interface BlockProps extends StackProps {
-    label: string;
-    children: React.ReactNode;
-  }
+type FieldContainerProps = BoxProps & {
+  label?: string;
+  children: React.ReactNode;
+};
 
-  function Block({ label, sx, children }: BlockProps) {
-    return (
-      <Stack spacing={1} sx={{ width: 1, ...sx }}>
-        <Typography
-          variant="caption"
-          sx={{
+export function FieldContainer({ sx, children, label = 'RHFTextField' }: FieldContainerProps) {
+  return (
+    <Box
+      sx={[
+        () => ({
+          gap: 2,
+          width: 1,
+          display: 'flex',
+          flexDirection: 'column',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+    >
+      <Typography
+        variant="caption"
+        sx={[
+          (theme) => ({
             textAlign: 'right',
             fontStyle: 'italic',
             color: 'text.disabled',
-          }}
-        >
-          {label}
-        </Typography>
-        {children}
-      </Stack>
-    );
-  }
+            fontSize: theme.typography.pxToRem(10),
+          }),
+        ]}
+      >
+        {label}
+      </Typography>
+
+      {children}
+    </Box>
+  );
 }

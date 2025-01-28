@@ -1,0 +1,13 @@
+model StudentEducationBackground {
+  id            String          @id @default(cuid())
+  examination   String
+  board         String
+  passYear      String
+  roll          String
+  result        String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student       Student?
+}

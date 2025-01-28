@@ -13,8 +13,11 @@ export const paths = {
   howToApply: '/how-to-apply',
   chairman: '/chairman',
   result: '/result',
-  applyOnline: '/apply-online',
-  downloadForm: '/pdf/apply-form.pdf',
+  apply: {
+    applyOnline: '/apply-online',
+    downloadForm: '/pdf/apply-form.pdf',
+    success: (id: string) => `/apply-online/${id}/success`,
+  },
   about: '/about-us',
   contact: '/contact-us',
   faqs: '/faqs',

@@ -150,7 +150,7 @@ export function HomeHero({ data, sx, ...other }: Props) {
         <Stack spacing={2.5} sx={{ alignItems: 'center' }}>
           <Button
             component={RouterLink}
-            href={paths.applyOnline}
+            href={paths.apply.applyOnline}
             color="inherit"
             size="large"
             variant="contained"

@@ -34,8 +34,8 @@ export const navData: NavMainProps['data'] = [
     children: [
       {
         items: [
-          { title: 'Apply Online', path: paths.applyOnline },
-          { title: 'Download Form', path: paths.downloadForm },
+          { title: 'Apply Online', path: paths.apply.applyOnline },
+          { title: 'Download Form', path: paths.apply.downloadForm },
         ],
       },
     ],

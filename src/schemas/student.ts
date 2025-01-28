@@ -44,7 +44,7 @@ export const NewStudentSchema = zod.object({
   motherName: zod.string().min(1, { message: "Mother's name is required!" }),
   examination: zod.string().min(1, { message: 'Examination is required!' }),
   board: zod.string().min(1, { message: 'Board is required!' }),
-  year: zod.string().min(1, { message: 'Year is required!' }),
+  passYear: zod.string().min(1, { message: 'Year is required!' }),
   roll: zod.string().min(1, { message: 'Roll is required!' }),
   result: zod.string().min(1, { message: 'Result is required!' }),
   division: zod.string().min(1, { message: 'Division is required!' }),

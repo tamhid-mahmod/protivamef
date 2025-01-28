@@ -47,4 +47,7 @@ export const endpoints = {
   district: {
     listByDivision: '/api/district/getDistrictsByDivision',
   },
+  student: {
+    details: '/api/student/studentDetails',
+  },
 };
