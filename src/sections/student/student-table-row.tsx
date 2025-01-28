@@ -1,4 +1,4 @@
-import type { IStudentItem } from 'src/types/student';
+import type { IStudentAllItem } from 'src/types/student';
 
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
@@ -26,7 +26,7 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = {
-  row: IStudentItem;
+  row: IStudentAllItem;
   selected: boolean;
   editHref: string;
   onSelectRow: () => void;

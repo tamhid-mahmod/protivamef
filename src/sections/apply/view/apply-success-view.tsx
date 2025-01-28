@@ -1,6 +1,6 @@
 'use client';
 
-import type { IStudentItem } from 'src/types/student';
+import type { IStudentAllItem } from 'src/types/student';
 
 import dynamic from 'next/dynamic';
 
@@ -21,7 +21,7 @@ const ApplyPDFDownload = dynamic(() => import('../apply-pdf').then((mod) => mod.
 // ----------------------------------------------------------------------
 
 type Props = {
-  student?: IStudentItem;
+  student?: IStudentAllItem;
 };
 
 export function ApplySuccessView({ student }: Props) {

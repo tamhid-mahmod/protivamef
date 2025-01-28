@@ -1,4 +1,4 @@
-import type { IStudentItem } from 'src/types/student';
+import type { IStudentAllItem } from 'src/types/student';
 
 import { useMemo } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
@@ -8,7 +8,7 @@ import { client } from 'src/lib/trpc';
 // ----------------------------------------------------------------------
 
 type StudentsData = {
-  students: IStudentItem[];
+  students: IStudentAllItem[];
 };
 
 export function useGetStudents() {

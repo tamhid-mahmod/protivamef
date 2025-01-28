@@ -86,3 +86,21 @@ export const NewStudentSchema = zod.object({
     .nullable()
     .optional(),
 });
+
+// ----------------------------------------------------------------------
+
+export type DeleteStudentSchemaType = zod.infer<typeof DeleteStudentSchema>;
+
+export const DeleteStudentSchema = zod.object({
+  studentId: zod.string().min(1, { message: 'Student id is required!' }),
+});
+
+// ----------------------------------------------------------------------
+
+export type DeleteStudentsSchemaType = zod.infer<typeof DeleteStudentsSchema>;
+
+export const DeleteStudentsSchema = zod.object({
+  studentIds: zod
+    .array(zod.string().min(1, { message: 'Students id is required!' }))
+    .nonempty({ message: 'At least one ID is required!' }),
+});

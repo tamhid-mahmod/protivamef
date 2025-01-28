@@ -1,11 +1,12 @@
 'use client';
 
 import type { TableHeadCellProps } from 'src/components/table';
-import type { IStudentItem, IStudentTableFilters } from 'src/types/student';
+import type { IStudentAllItem, IStudentTableFilters } from 'src/types/student';
 
 import { varAlpha } from 'minimal-shared/utils';
 import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -21,6 +22,7 @@ import { paths } from 'src/routes/paths';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
+import { client } from 'src/lib/trpc';
 import { useGetCentres } from 'src/actions/centre';
 import { useGetStudents } from 'src/actions/student';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -69,13 +71,14 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 
 export function StudentListView() {
   const table = useTable({ defaultRowsPerPage: 25 });
+  const queryClient = useQueryClient();
 
   const confirmDialog = useBoolean();
 
   const { centres } = useGetCentres();
   const { students } = useGetStudents();
 
-  const [tableData, setTableData] = useState<IStudentItem[]>(students);
+  const [tableData, setTableData] = useState<IStudentAllItem[]>(students);
 
   const filters = useSetState<IStudentTableFilters>({
     name: '',
@@ -111,28 +114,49 @@ export function StudentListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+  const { mutate: handleDeleteRow } = useMutation({
+    mutationFn: async (studentId: string) => {
+      await client.student.deleteStudent.$post({ studentId });
     },
-    [dataInPage.length, table, tableData]
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      toast.success('Student deleted!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const { mutate: handleDeleteStudentRows } = useMutation({
+    mutationFn: async (studentIds: [string, ...string[]]) => {
+      await client.student.deleteStudents.$post({ studentIds });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      toast.success('All selected students are deleted!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
 
-    toast.success('Delete success!');
+    const deleteIds = tableData
+      .filter((row) => table.selected.includes(row.id))
+      .map((row) => row.id);
+
+    if (deleteIds.length > 0) {
+      handleDeleteStudentRows(deleteIds as [string, ...string[]]);
+    } else {
+      toast.error('No centres selected for deletion.');
+    }
 
     setTableData(deleteRows);
 
     table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  }, [dataFiltered.length, dataInPage.length, table, tableData, handleDeleteStudentRows]);
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
@@ -321,7 +345,7 @@ export function StudentListView() {
 
 type ApplyFilterProps = {
   dateError: boolean;
-  inputData: IStudentItem[];
+  inputData: IStudentAllItem[];
   filters: IStudentTableFilters;
   comparator: (a: any, b: any) => number;
 };

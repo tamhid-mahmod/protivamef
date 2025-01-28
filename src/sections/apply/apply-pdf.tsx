@@ -1,4 +1,4 @@
-import type { IStudentItem } from 'src/types/student';
+import type { IStudentAllItem } from 'src/types/student';
 
 import { useMemo } from 'react';
 import {
@@ -21,7 +21,7 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 type ApplyPDFProps = {
-  student?: IStudentItem;
+  student?: IStudentAllItem;
 };
 
 export function ApplyPDFDownload({ student }: ApplyPDFProps) {
@@ -97,7 +97,7 @@ const useStyles = () =>
   );
 
 type ApplyPdfDocumentProps = {
-  student?: IStudentItem;
+  student?: IStudentAllItem;
 };
 
 function ApplyPdfDocument({ student }: ApplyPdfDocumentProps) {

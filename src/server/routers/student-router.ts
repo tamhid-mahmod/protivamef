@@ -1,10 +1,12 @@
 import type { ICourseItem } from 'src/types/course';
-import type { IStudentItem } from 'src/types/student';
+import type { IStudentAllItem } from 'src/types/student';
 
 import { z as zod } from 'zod';
+import { HTTPException } from 'hono/http-exception';
 
 import { db } from 'src/lib/db';
-import { NewStudentSchema } from 'src/schemas/student';
+import { getStudentById } from 'src/services/student';
+import { NewStudentSchema, DeleteStudentSchema, DeleteStudentsSchema } from 'src/schemas/student';
 
 import { router } from '../__internals/router';
 import { publicProcedure, privateProcedure } from '../procedures';
@@ -20,7 +22,7 @@ export const studentRouter = router({
       },
     });
 
-    const produceStudent: IStudentItem[] = await Promise.all(
+    const produceStudent: IStudentAllItem[] = await Promise.all(
       students.map(async (student) => {
         const division = await db.division.findUnique({
           where: {
@@ -209,6 +211,54 @@ export const studentRouter = router({
       return c.json({ success: true, student }, 201);
     } catch (error) {
       console.error('Error creating student:', error);
+      throw error;
+    }
+  }),
+
+  deleteStudent: privateProcedure.input(DeleteStudentSchema).mutation(async ({ c, input }) => {
+    const { studentId } = input;
+
+    try {
+      const existingStudent = await getStudentById(studentId);
+
+      if (!existingStudent) {
+        throw new HTTPException(404, { message: 'The resource to be deleted does not exist.' });
+      }
+
+      await db.student.delete({
+        where: {
+          id: existingStudent.id,
+        },
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting student:', error);
+      throw error;
+    }
+  }),
+
+  deleteStudents: privateProcedure.input(DeleteStudentsSchema).mutation(async ({ c, input }) => {
+    const { studentIds } = input;
+
+    try {
+      const existingStudents = await db.student.findMany({
+        where: {
+          id: { in: studentIds },
+        },
+      });
+
+      if (!existingStudents) {
+        throw new HTTPException(404, { message: 'The resource to be deleted does not exist.' });
+      }
+
+      await db.student.deleteMany({
+        where: { id: { in: studentIds } },
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting students:', error);
       throw error;
     }
   }),

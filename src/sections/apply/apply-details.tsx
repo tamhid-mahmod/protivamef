@@ -1,4 +1,4 @@
-import type { IStudentItem } from 'src/types/student';
+import type { IStudentAllItem } from 'src/types/student';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -13,7 +13,7 @@ import { Label } from 'src/components/label';
 // ----------------------------------------------------------------------
 
 type Props = {
-  student?: IStudentItem;
+  student?: IStudentAllItem;
 };
 
 export function ApplyDetails({ student }: Props) {
