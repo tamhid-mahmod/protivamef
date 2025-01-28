@@ -6,8 +6,8 @@ import type { IDistrictItem } from './district';
 export type IDivisionItem = {
   id: string;
   name: string;
-  createdAt: IDateValue;
-  updatedAt: IDateValue;
+  createdAt: IDateValue | Date;
+  updatedAt: IDateValue | Date;
 };
 
 export type IDivisionWithDistrictsItem = IDivisionItem & {

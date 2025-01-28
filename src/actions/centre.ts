@@ -1,9 +1,47 @@
-import type { ICentreCourseItem, ICentresWithDivisionAndDistrict } from 'src/types/centre';
+import type {
+  ICentreItem,
+  ICentreCourseItem,
+  ICentresWithDivisionAndDistrict,
+} from 'src/types/centre';
 
 import { useMemo } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
 import { client } from 'src/lib/trpc';
+
+// ----------------------------------------------------------------------
+
+type CentresData = {
+  centres: ICentreItem[];
+};
+
+export function useGetCentres() {
+  const {
+    data,
+    isPending: isLoading,
+    error,
+    isFetching: isValidating,
+  }: UseQueryResult<CentresData> = useQuery({
+    queryKey: ['centres'],
+    queryFn: async () => {
+      const res = await client.centre.getCentres.$get();
+      return await res.json();
+    },
+  });
+
+  const memoizedValue = useMemo(
+    () => ({
+      centres: data?.centres || [],
+      centresLoading: isLoading,
+      centresError: error,
+      centresValidating: isValidating,
+      centresEmpty: !isLoading && !isValidating && data?.centres.length,
+    }),
+    [data, error, isLoading, isValidating]
+  );
+
+  return memoizedValue;
+}
 
 // ----------------------------------------------------------------------
 

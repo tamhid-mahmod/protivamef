@@ -1,14 +1,81 @@
+import type { ICourseItem } from 'src/types/course';
+import type { IStudentItem } from 'src/types/student';
+
 import { z as zod } from 'zod';
 
 import { db } from 'src/lib/db';
 import { NewStudentSchema } from 'src/schemas/student';
 
 import { router } from '../__internals/router';
-import { publicProcedure } from '../procedures';
+import { publicProcedure, privateProcedure } from '../procedures';
 
 // ----------------------------------------------------------------------
 
 export const studentRouter = router({
+  getStudents: privateProcedure.query(async ({ c }) => {
+    const students = await db.student.findMany({
+      include: {
+        educationBackground: true,
+        appliedFor: true,
+      },
+    });
+
+    const produceStudent: IStudentItem[] = await Promise.all(
+      students.map(async (student) => {
+        const division = await db.division.findUnique({
+          where: {
+            id: student?.appliedFor.divisionId,
+          },
+        });
+
+        const district = await db.district.findUnique({
+          where: {
+            id: student?.appliedFor.districtId,
+          },
+        });
+
+        const centre = await db.centre.findUnique({
+          where: {
+            id: student?.appliedFor.centreId,
+            publish: 'published',
+          },
+        });
+
+        const course = await db.course.findUnique({
+          where: {
+            id: student?.appliedFor.courseId,
+            publish: 'published',
+          },
+        });
+
+        if (division && district && centre && course) {
+          const transformedCourse: ICourseItem = {
+            ...course,
+            fee: course?.fee.toNumber(),
+            feeBase: course?.feeBase ? course.feeBase.toNumber() : null,
+          };
+
+          return {
+            ...student,
+            division,
+            district,
+            centre,
+            course: transformedCourse,
+          };
+        }
+        return {
+          ...student,
+          division,
+          district,
+          centre,
+          course: null,
+        };
+      })
+    );
+
+    return c.superjson({ students: produceStudent });
+  }),
+
   studentDetails: publicProcedure
     .input(zod.object({ studentId: zod.string() }))
     .query(async ({ c, input }) => {

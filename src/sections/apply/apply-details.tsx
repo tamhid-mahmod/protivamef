@@ -97,15 +97,15 @@ export function ApplyDetails({ student }: Props) {
           <Typography variant="subtitle2" sx={{ mb: 1 }}>
             Centre
           </Typography>
-          {student?.centre.name}
+          {student?.centre?.name}
           <br />
-          {student?.centre.address}
+          {student?.centre?.address}
           <br />
-          Course code: {student?.course.code}
+          Course code: {student?.course?.code}
           <br />
-          Course: {student?.course.title}
+          Course: {student?.course?.title}
           <br />
-          Phone: {student?.centre.phoneNumber}
+          Phone: {student?.centre?.phoneNumber}
           <br />
         </Stack>
 

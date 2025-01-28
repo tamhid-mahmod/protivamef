@@ -12,8 +12,8 @@ export type IDistrictItem = {
   id: string;
   divisionId: string;
   name: string;
-  createdAt: IDateValue;
-  updatedAt: IDateValue;
+  createdAt: IDateValue | Date;
+  updatedAt: IDateValue | Date;
 };
 
 export type IDistrictsWithDivisionItem = IDistrictItem & {

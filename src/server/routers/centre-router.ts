@@ -18,6 +18,16 @@ import { publicProcedure, privateProcedure } from '../procedures';
 // ----------------------------------------------------------------------
 
 export const centreRouter = router({
+  getCentres: publicProcedure.query(async ({ c }) => {
+    const centres = await db.centre.findMany({
+      where: {
+        publish: 'published',
+      },
+    });
+
+    return c.superjson({ centres });
+  }),
+
   getCentresByDivisionAndDistrict: publicProcedure
     .input(zod.object({ divisionId: zod.string(), districtId: zod.string() }))
     .query(async ({ c, input }) => {
