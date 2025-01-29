@@ -11,6 +11,7 @@ import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 
 import { fDate } from 'src/utils/format-time';
+import { fDecimal } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -88,7 +89,7 @@ export function PublishResultTableRow({ row, selected, onSelectRow, onDeleteRow 
 
         <TableCell>{row.studentAId}</TableCell>
 
-        <TableCell>{row.mark}</TableCell>
+        <TableCell>{fDecimal(row.mark)}</TableCell>
 
         <TableCell>{fDate(row.createdAt)}</TableCell>
 

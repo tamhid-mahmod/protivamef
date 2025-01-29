@@ -3,7 +3,7 @@
 import type { TableHeadCellProps } from 'src/components/table';
 import type { IResultItem, IResultTableFilters } from 'src/types/result';
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
@@ -16,6 +16,7 @@ import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 
+import { useGetResults } from 'src/actions/result';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/snackbar';
@@ -57,10 +58,20 @@ export function PublishResultListView() {
   const confirmDialog = useBoolean();
   const newForm = useBoolean();
 
-  const [tableData, setTableData] = useState<IResultItem[]>([]);
+  const { results } = useGetResults();
+
+  console.log(results);
+
+  const [tableData, setTableData] = useState<IResultItem[]>(results);
 
   const filters = useSetState<IResultTableFilters>({ studentAId: '' });
   const { state: currentFilters } = filters;
+
+  useEffect(() => {
+    if (results.length) {
+      setTableData(results);
+    }
+  }, [results]);
 
   const dataFiltered = applyFilter({
     inputData: tableData,

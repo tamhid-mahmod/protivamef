@@ -37,6 +37,23 @@ export function fNumber(inputValue: InputNumberValue, options?: Options) {
 
 // ----------------------------------------------------------------------
 
+export function fDecimal(inputValue: InputNumberValue, options?: Options) {
+  const locale = formatNumberLocale() || DEFAULT_LOCALE;
+
+  const number = processInput(inputValue);
+  if (number === null) return '';
+
+  const fm = new Intl.NumberFormat(locale.code, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    ...options,
+  }).format(number);
+
+  return fm;
+}
+
+// ----------------------------------------------------------------------
+
 export function fCurrency(inputValue: InputNumberValue, options?: Options) {
   const locale = DEFAULT_LOCALE;
 

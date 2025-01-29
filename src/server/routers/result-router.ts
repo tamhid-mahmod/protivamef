@@ -12,6 +12,16 @@ import { privateProcedure } from '../procedures';
 // ----------------------------------------------------------------------
 
 export const resultRouter = router({
+  getResults: privateProcedure.query(async ({ c, input }) => {
+    const results = await db.result.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return c.superjson({ results });
+  }),
+
   publushResult: privateProcedure.input(NewResultSchema).mutation(async ({ c, input }) => {
     const { studentAId, mark, createdAt } = input;
 
@@ -19,13 +29,17 @@ export const resultRouter = router({
       const existingStudent = await getStudentByStudentAId(studentAId);
 
       if (!existingStudent) {
-        throw new HTTPException(404, { message: 'Student not exist!' });
+        throw new HTTPException(400, { message: 'Student not exist!' });
+      }
+
+      if (existingStudent.status !== 'registered') {
+        throw new HTTPException(400, { message: 'Student not registered yet!' });
       }
 
       const existingResult = await getresultByStudentAId(studentAId);
 
       if (existingResult) {
-        throw new HTTPException(409, { message: 'Result already published!' });
+        throw new HTTPException(400, { message: 'Result already published!' });
       }
 
       const result = await db.result.create({
