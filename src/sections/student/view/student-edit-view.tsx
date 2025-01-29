@@ -24,7 +24,7 @@ export function StudentEditView({ student: currentStudent }: Props) {
     <DashboardContent maxWidth="xl">
       <CustomBreadcrumbs
         heading="Edit"
-        backHref={paths.dashboard.centre.root}
+        backHref={paths.dashboard.student.root}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Student', href: paths.dashboard.centre.root },

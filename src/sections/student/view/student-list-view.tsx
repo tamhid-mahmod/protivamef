@@ -60,7 +60,7 @@ const STATUS_OPTIONS = [
 
 const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'name', label: 'Name' },
-  { id: 'rollNumber', label: 'Student ID', width: 180 },
+  { id: 'studentAId', label: 'Student ID', width: 180 },
   { id: 'gender', label: 'Gender', width: 220 },
   { id: 'createdAt', label: 'Application date', width: 180 },
   { id: 'status', label: 'Status', width: 100 },
@@ -365,7 +365,7 @@ function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterP
 
   if (name) {
     inputData = inputData.filter((student) =>
-      student.rollNumber.toLowerCase().includes(name.toLowerCase())
+      student.studentAId.toLowerCase().includes(name.toLowerCase())
     );
   }
 

@@ -74,7 +74,7 @@ export function ApplyDetails({ student }: Props) {
             {student?.status}
           </Label>
 
-          <Typography variant="h6">Student ID: {student?.rollNumber}</Typography>
+          <Typography variant="h6">Student ID: {student?.studentAId}</Typography>
         </Stack>
 
         <Stack sx={{ typography: 'body2' }}>

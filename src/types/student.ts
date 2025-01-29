@@ -37,7 +37,7 @@ export type IStudentAppliedForItem = {
 
 export type IStudentItem = {
   id: string;
-  rollNumber: string;
+  studentAId: string;
   imageUrl: string | null;
   fullName: string;
   dateOfBirth: IDateValue | Date;

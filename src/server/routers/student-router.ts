@@ -180,24 +180,24 @@ export const studentRouter = router({
         },
       });
 
-      const latestRoll = await db.student.findFirst({
-        where: { rollNumber: { gte: '01000000' } }, // Only consider new 6-digit roll numbers
-        orderBy: { rollNumber: 'desc' }, // Get the highest roll number
+      const latestId = await db.student.findFirst({
+        where: { studentAId: { gte: '01000000' } }, // Only consider new 6-digit roll numbers
+        orderBy: { studentAId: 'desc' }, // Get the highest roll number
       });
 
       // Start roll numbers from 100001 if no new students exist
-      let newRollNumber: string;
-      if (!latestRoll || !latestRoll.rollNumber) {
-        newRollNumber = '01000001';
+      let newStudentId: string;
+      if (!latestId || !latestId.studentAId) {
+        newStudentId = '01000001';
       } else {
         // Increment the roll number and ensure it's a 6-digit string
-        const nextRoll = parseInt(latestRoll.rollNumber, 10) + 1;
-        newRollNumber = nextRoll.toString().padStart(8, '0');
+        const nextId = parseInt(latestId.studentAId, 10) + 1;
+        newStudentId = nextId.toString().padStart(8, '0');
       }
 
       const student = await db.student.create({
         data: {
-          rollNumber: newRollNumber,
+          studentAId: newStudentId,
           imageUrl: imageUrl as string,
           fullName,
           dateOfBirth: dateOfBirth as Date,

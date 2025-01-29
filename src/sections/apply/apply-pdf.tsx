@@ -40,7 +40,7 @@ export function ApplyPDFDownload({ student }: ApplyPDFProps) {
   return (
     <PDFDownloadLink
       document={<ApplyPdfDocument student={student} />}
-      fileName={`protiva-${student?.fullName}-${student?.rollNumber}`}
+      fileName={`protiva-${student?.fullName}-${student?.studentAId}`}
       style={{ textDecoration: 'none' }}
     >
       {/* @ts-expect-error: https://github.com/diegomura/react-pdf/issues/2886 */}
@@ -102,7 +102,7 @@ type ApplyPdfDocumentProps = {
 
 function ApplyPdfDocument({ student }: ApplyPdfDocumentProps) {
   const {
-    rollNumber,
+    studentAId,
     fullName,
     address,
     phoneNumber,
@@ -122,7 +122,7 @@ function ApplyPdfDocument({ student }: ApplyPdfDocumentProps) {
 
       <View style={{ alignItems: 'flex-end', flexDirection: 'column' }}>
         <Text style={[styles.h3, styles.mb8, { textTransform: 'capitalize' }]}>{status}</Text>
-        <Text style={[styles.text2]}>Student ID: {rollNumber}</Text>
+        <Text style={[styles.text2]}>Student ID: {studentAId}</Text>
       </View>
     </View>
   );

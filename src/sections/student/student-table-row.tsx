@@ -114,7 +114,7 @@ export function StudentTableRow({ row, selected, editHref, onSelectRow, onDelete
           </Box>
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.rollNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.studentAId}</TableCell>
 
         <TableCell>{row.gender}</TableCell>
 

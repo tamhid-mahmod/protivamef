@@ -6,7 +6,7 @@ enum StudentStatus {
 
 model Student {
   id                            String          @id @default(cuid())
-  rollNumber                    String          @unique
+  studentAId                    String          @unique
   imageUrl                      String?
   fullName                      String
   dateOfBirth                   DateTime
@@ -29,5 +29,5 @@ model Student {
   educationBackground StudentEducationBackground  @relation(fields: [studentEducationBackgroundId], references: [id], onDelete: Cascade)
   appliedFor          StudentAppliedFor           @relation(fields: [studentAppliedForId], references: [id], onDelete: Cascade)
 
-  @@index([rollNumber])
+  @@index([studentAId])
 }
