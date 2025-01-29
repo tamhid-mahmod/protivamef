@@ -5,6 +5,7 @@ import type { IResultItem, IResultTableFilters } from 'src/types/result';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -16,6 +17,7 @@ import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 
+import { client } from 'src/lib/trpc';
 import { useGetResults } from 'src/actions/result';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -54,6 +56,7 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 
 export function PublishResultListView() {
   const table = useTable();
+  const queryClient = useQueryClient();
 
   const confirmDialog = useBoolean();
   const newForm = useBoolean();
@@ -85,28 +88,49 @@ export function PublishResultListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+  const { mutate: handleDeleteRow } = useMutation({
+    mutationFn: async (resultId: string) => {
+      await client.result.deleteResult.$post({ resultId });
     },
-    [dataInPage.length, table, tableData]
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['results'] });
+      toast.success('Result deleted!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const { mutate: handleDeleteResultRows } = useMutation({
+    mutationFn: async (resultIds: [string, ...string[]]) => {
+      await client.result.deleteResults.$post({ resultIds });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['results'] });
+      toast.success('All selected results are deleted!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
 
-    toast.success('Delete success!');
+    const deleteIds = tableData
+      .filter((row) => table.selected.includes(row.id))
+      .map((row) => row.id);
+
+    if (deleteIds.length > 0) {
+      handleDeleteResultRows(deleteIds as [string, ...string[]]);
+    } else {
+      toast.error('No centres selected for deletion.');
+    }
 
     setTableData(deleteRows);
 
     table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  }, [dataFiltered.length, dataInPage.length, table, tableData, handleDeleteResultRows]);
 
   const renderConfirmDialog = () => (
     <ConfirmDialog
