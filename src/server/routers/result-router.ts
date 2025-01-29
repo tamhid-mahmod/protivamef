@@ -2,9 +2,14 @@ import { Decimal } from 'decimal.js';
 import { HTTPException } from 'hono/http-exception';
 
 import { db } from 'src/lib/db';
-import { NewResultSchema } from 'src/schemas/result';
-import { getresultByStudentAId } from 'src/services/result';
 import { getStudentByStudentAId } from 'src/services/student';
+import { getResultById, getresultByStudentAId } from 'src/services/result';
+import {
+  NewResultSchema,
+  DeleteResultSchema,
+  UpdateResultSchema,
+  DeleteResultsSchema,
+} from 'src/schemas/result';
 
 import { router } from '../__internals/router';
 import { privateProcedure } from '../procedures';
@@ -62,6 +67,81 @@ export const resultRouter = router({
       return c.json({ success: true, result }, 201);
     } catch (error) {
       console.error('Error updating publish result:', error);
+      throw error;
+    }
+  }),
+
+  updateResult: privateProcedure.input(UpdateResultSchema).mutation(async ({ c, input }) => {
+    const { resultId, mark, createdAt } = input;
+
+    try {
+      const exisitingResult = await getResultById(resultId);
+
+      if (!exisitingResult) {
+        throw new HTTPException(400, { message: 'The resource to be update does not exist.' });
+      }
+
+      await db.result.update({
+        where: {
+          id: resultId,
+        },
+        data: {
+          ...(mark && { mark }),
+          ...(createdAt && { createdAt: createdAt as Date }),
+        },
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error('Error updating result:', error);
+      throw error;
+    }
+  }),
+
+  deleteResult: privateProcedure.input(DeleteResultSchema).mutation(async ({ c, input }) => {
+    const { resultId } = input;
+
+    try {
+      const exisitingResult = await getResultById(resultId);
+
+      if (!exisitingResult) {
+        throw new HTTPException(400, { message: 'The resource to be update does not exist.' });
+      }
+
+      await db.result.delete({
+        where: {
+          id: exisitingResult.id,
+        },
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting result:', error);
+      throw error;
+    }
+  }),
+
+  deleteResults: privateProcedure.input(DeleteResultsSchema).mutation(async ({ c, input }) => {
+    const { resultIds } = input;
+
+    try {
+      const existingResults = await db.result.findMany({
+        where: {
+          id: { in: resultIds },
+        },
+      });
+
+      if (!existingResults) {
+        throw new HTTPException(404, { message: 'The resource to be deleted does not exist.' });
+      }
+
+      await db.result.deleteMany({
+        where: { id: { in: resultIds } },
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting results:', error);
       throw error;
     }
   }),

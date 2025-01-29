@@ -5,10 +5,6 @@ import { z as zod } from 'zod';
 
 export type NewResultSchemaType = zod.infer<typeof NewResultSchema>;
 
-export type UpdateResultSchemaType = NewResultSchemaType & {
-  resultId: string;
-};
-
 export const NewResultSchema = zod.object({
   studentAId: zod.string().min(1, { message: 'Student ID is required!' }),
   mark: zod
@@ -51,4 +47,31 @@ export const NewResultSchema = zod.object({
       return date;
     })
     .pipe(zod.union([zod.number(), zod.string(), zod.date(), zod.null()])),
+});
+
+// ----------------------------------------------------------------------
+
+export type UpdateResultSchemaType = zod.infer<typeof UpdateResultSchema>;
+
+export const UpdateResultSchema = zod.object({
+  resultId: zod.string().min(1, { message: 'Result id is required!' }),
+  ...NewResultSchema.shape,
+});
+
+// ----------------------------------------------------------------------
+
+export type DeleteResultSchemaType = zod.infer<typeof DeleteResultSchema>;
+
+export const DeleteResultSchema = zod.object({
+  resultId: zod.string().min(1, { message: 'Result id is required!' }),
+});
+
+// ----------------------------------------------------------------------
+
+export type DeleteResultsSchemaType = zod.infer<typeof DeleteResultsSchema>;
+
+export const DeleteResultsSchema = zod.object({
+  resultIds: zod
+    .array(zod.string().min(1, { message: 'Results id is required!' }))
+    .nonempty({ message: 'At least one ID is required!' }),
 });

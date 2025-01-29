@@ -17,6 +17,8 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
 
+import { PublishResultNewEditForm } from './publish-result-new-edit-form';
+
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -30,6 +32,16 @@ export function PublishResultTableRow({ row, selected, onSelectRow, onDeleteRow 
   const menuActions = usePopover();
   const confirmDialog = useBoolean();
 
+  const editForm = useBoolean();
+
+  const renderEditForm = () => (
+    <PublishResultNewEditForm
+      currentResult={row}
+      open={editForm.value}
+      onClose={editForm.onFalse}
+    />
+  );
+
   const renderMenuActions = () => (
     <CustomPopover
       open={menuActions.open}
@@ -39,7 +51,12 @@ export function PublishResultTableRow({ row, selected, onSelectRow, onDeleteRow 
     >
       <MenuList>
         <li>
-          <MenuItem onClick={() => menuActions.onClose()}>
+          <MenuItem
+            onClick={() => {
+              editForm.onTrue();
+              menuActions.onClose();
+            }}
+          >
             <Iconify icon="solar:pen-bold" />
             Edit
           </MenuItem>
@@ -100,6 +117,7 @@ export function PublishResultTableRow({ row, selected, onSelectRow, onDeleteRow 
         </TableCell>
       </TableRow>
 
+      {renderEditForm()}
       {renderMenuActions()}
       {renderConfirmDialog()}
     </>

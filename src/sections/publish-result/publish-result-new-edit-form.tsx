@@ -18,7 +18,11 @@ import { useRouter } from 'src/routes/hooks';
 import { today } from 'src/utils/format-time';
 
 import { client } from 'src/lib/trpc';
-import { NewResultSchema, type NewResultSchemaType } from 'src/schemas/result';
+import {
+  NewResultSchema,
+  type NewResultSchemaType,
+  type UpdateResultSchemaType,
+} from 'src/schemas/result';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
@@ -55,8 +59,12 @@ export function PublishResultNewEditForm({ open, onClose, currentResult }: Props
   } = methods;
 
   const { mutate: handleDivision, isPending } = useMutation({
-    mutationFn: async (data: NewResultSchemaType) => {
-      await client.result.publushResult.$post(data);
+    mutationFn: async (data: UpdateResultSchemaType | NewResultSchemaType) => {
+      if ('resultId' in data && currentResult) {
+        await client.result.updateResult.$post(data);
+      } else {
+        await client.result.publushResult.$post(data);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['results'] });
@@ -73,7 +81,11 @@ export function PublishResultNewEditForm({ open, onClose, currentResult }: Props
   });
 
   const onSubmit = handleSubmit(async (data) => {
-    handleDivision(data);
+    if (currentResult) {
+      handleDivision({ resultId: currentResult.id, ...data });
+    } else {
+      handleDivision(data);
+    }
   });
 
   return (
