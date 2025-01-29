@@ -29,7 +29,7 @@ export function PublishResultTableToolbar({ filters, onResetPage }: Props) {
   const handleFilterStudentId = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       onResetPage();
-      updateFilters({ studentId: event.target.value });
+      updateFilters({ studentAId: event.target.value });
     },
     [onResetPage, updateFilters]
   );
@@ -83,7 +83,7 @@ export function PublishResultTableToolbar({ filters, onResetPage }: Props) {
         >
           <TextField
             fullWidth
-            value={currentFilters.studentId}
+            value={currentFilters.studentAId}
             onChange={handleFilterStudentId}
             placeholder="Search srudent id..."
             slotProps={{

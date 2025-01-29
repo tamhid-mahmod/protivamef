@@ -1,0 +1,12 @@
+model Result {
+  id            String          @id @default(cuid())
+  studentAId    String          @unique
+  mark          Decimal         @db.Decimal(5, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student Student?
+
+  @@index([studentAId])
+}

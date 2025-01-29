@@ -3,12 +3,12 @@ import type { IDateValue } from './common';
 // ----------------------------------------------------------------------
 
 export type IResultTableFilters = {
-  studentId: string;
+  studentAId: string;
 };
 
 export type IResultItem = {
   id: string;
-  studentId: string;
+  studentAId: string;
   mark: number;
   createdAt: IDateValue | Date;
   updatedAt: IDateValue | Date;

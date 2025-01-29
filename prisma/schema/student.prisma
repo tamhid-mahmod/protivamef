@@ -22,12 +22,14 @@ model Student {
   iAgree                        Boolean
   studentEducationBackgroundId  String         @unique
   studentAppliedForId           String         @unique
+  resultId                      String?        @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  educationBackground StudentEducationBackground  @relation(fields: [studentEducationBackgroundId], references: [id], onDelete: Cascade)
-  appliedFor          StudentAppliedFor           @relation(fields: [studentAppliedForId], references: [id], onDelete: Cascade)
+  educationBackground StudentEducationBackground  @relation(fields: [studentEducationBackgroundId], references: [id])
+  appliedFor          StudentAppliedFor           @relation(fields: [studentAppliedForId], references: [id])
+  result              Result?                     @relation(fields: [resultId], references: [id])
 
   @@index([studentAId])
 }

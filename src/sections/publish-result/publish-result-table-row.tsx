@@ -86,7 +86,7 @@ export function PublishResultTableRow({ row, selected, onSelectRow, onDeleteRow 
           />
         </TableCell>
 
-        <TableCell>{row.studentId}</TableCell>
+        <TableCell>{row.studentAId}</TableCell>
 
         <TableCell>{row.mark}</TableCell>
 

@@ -6,6 +6,7 @@ import { CONFIG } from 'src/global-config';
 
 import { centreRouter } from './routers/centre-router';
 import { courseRouter } from './routers/course-router';
+import { resultRouter } from './routers/result-router';
 import { studentRouter } from './routers/student-router';
 import { divisionRouter } from './routers/division-router';
 import { districtRouter } from './routers/district-router';
@@ -27,7 +28,8 @@ const appRouter = app
   .route('/centre', centreRouter)
   .route('/category', categoryRouter)
   .route('/course', courseRouter)
-  .route('/student', studentRouter);
+  .route('/student', studentRouter)
+  .route('/result', resultRouter);
 
 // The handler Next.js uses to answer API requests
 export const httpHandler = handle(app);

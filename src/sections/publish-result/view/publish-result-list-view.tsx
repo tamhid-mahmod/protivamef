@@ -36,6 +36,7 @@ import {
 } from 'src/components/table';
 
 import { PublishResultTableRow } from '../publish-result-table-row';
+import { PublishResultNewEditForm } from '../publish-result-new-edit-form';
 import { PublishResultTableToolbar } from '../publish-result-table-toolbar';
 import { PublishResultTableFiltersResult } from '../publish-result-table-filters-result';
 
@@ -58,7 +59,7 @@ export function PublishResultListView() {
 
   const [tableData, setTableData] = useState<IResultItem[]>([]);
 
-  const filters = useSetState<IResultTableFilters>({ studentId: '' });
+  const filters = useSetState<IResultTableFilters>({ studentAId: '' });
   const { state: currentFilters } = filters;
 
   const dataFiltered = applyFilter({
@@ -69,7 +70,7 @@ export function PublishResultListView() {
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
-  const canReset = !!currentFilters.studentId;
+  const canReset = !!currentFilters.studentAId;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -119,6 +120,10 @@ export function PublishResultListView() {
         </Button>
       }
     />
+  );
+
+  const renderNewEditForm = () => (
+    <PublishResultNewEditForm open={newForm.value} onClose={newForm.onFalse} />
   );
 
   return (
@@ -231,7 +236,7 @@ export function PublishResultListView() {
           />
         </Card>
       </DashboardContent>
-
+      {renderNewEditForm()}
       {renderConfirmDialog()}
     </>
   );
@@ -246,7 +251,7 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
-  const { studentId } = filters;
+  const { studentAId } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
@@ -258,8 +263,8 @@ function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (studentId) {
-    inputData = inputData.filter((result) => result.studentId.includes(studentId));
+  if (studentAId) {
+    inputData = inputData.filter((result) => result.studentAId.includes(studentAId));
   }
 
   return inputData;

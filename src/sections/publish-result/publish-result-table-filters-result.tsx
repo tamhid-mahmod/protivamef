@@ -20,7 +20,7 @@ export function PublishResultTableFiltersResult({ filters, onResetPage, totalRes
 
   const handleRemoveKeyword = useCallback(() => {
     onResetPage();
-    updateFilters({ studentId: '' });
+    updateFilters({ studentAId: '' });
   }, [onResetPage, updateFilters]);
 
   const handleReset = useCallback(() => {
@@ -30,8 +30,8 @@ export function PublishResultTableFiltersResult({ filters, onResetPage, totalRes
 
   return (
     <FiltersResult totalResults={totalResults} onReset={handleReset} sx={sx}>
-      <FiltersBlock label="Keyword:" isShow={!!currentFilters.studentId}>
-        <Chip {...chipProps} label={currentFilters.studentId} onDelete={handleRemoveKeyword} />
+      <FiltersBlock label="Keyword:" isShow={!!currentFilters.studentAId}>
+        <Chip {...chipProps} label={currentFilters.studentAId} onDelete={handleRemoveKeyword} />
       </FiltersBlock>
     </FiltersResult>
   );
