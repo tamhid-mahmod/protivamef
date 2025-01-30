@@ -7,26 +7,6 @@ import type { NavMainProps } from './main/nav/types';
 // ----------------------------------------------------------------------
 
 export const navData: NavMainProps['data'] = [
-  { title: 'Home', path: '/', icon: <Iconify width={22} icon="solar:home-2-bold-duotone" /> },
-  {
-    title: 'Course',
-    path: '/course',
-    icon: <Iconify width={22} icon="solar:book-bold-duotone" />,
-    children: [
-      {
-        items: [
-          { title: 'Computer Courses', path: '1' },
-          { title: 'Fashion Courses', path: '2' },
-          { title: 'Technical Courses', path: '3' },
-          { title: 'Advanced Certificate Courses', path: '4' },
-          { title: 'Language Courses', path: '5' },
-          { title: 'Job Courses', path: '6' },
-          { title: 'Medical Courses', path: '7' },
-          { title: 'Agricultural Courses', path: '8' },
-        ],
-      },
-    ],
-  },
   {
     title: 'Apply',
     path: '/apply',

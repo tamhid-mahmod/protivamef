@@ -10,7 +10,10 @@ import Button from '@mui/material/Button';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { useGetCategories } from 'src/actions/category';
+
 import { Logo } from 'src/components/logo';
+import { Iconify } from 'src/components/iconify';
 
 import { useAuthContext } from 'src/auth/hooks';
 
@@ -55,9 +58,26 @@ export function MainLayout({
 }: MainLayoutProps) {
   const { user } = useAuthContext();
 
+  const { categories } = useGetCategories();
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
-  const navData = slotProps?.nav?.data ?? mainNavData;
+  const navData = slotProps?.nav?.data ?? [
+    { title: 'Home', path: '/', icon: <Iconify width={22} icon="solar:home-2-bold-duotone" /> },
+    {
+      title: 'Course',
+      path: '/course',
+      icon: <Iconify width={22} icon="solar:book-bold-duotone" />,
+      children: [
+        {
+          items: categories.map((category) => ({
+            title: category.name,
+            path: `/course/${category.slug}`,
+          })),
+        },
+      ],
+    },
+    ...mainNavData,
+  ];
 
   const renderHeader = () => {
     const headerSlots: HeaderSectionProps['slots'] = {
