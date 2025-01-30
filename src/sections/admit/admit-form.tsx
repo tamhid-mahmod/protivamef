@@ -1,9 +1,11 @@
-import { z as zod } from 'zod';
+import type { IStudentAllItem } from 'src/types/student';
+
 import { useForm } from 'react-hook-form';
 import { useReactToPrint } from 'react-to-print';
 import { useBoolean } from 'minimal-shared/hooks';
 import { useRef, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -17,6 +19,10 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 
+import { client } from 'src/lib/trpc';
+import { GetAdmitSchema, type GetAdmitSchemaType } from 'src/schemas/admit';
+
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
@@ -24,18 +30,12 @@ import { AdmitPrint } from './admit-print';
 
 // ----------------------------------------------------------------------
 
-export type SearchCertificateSchemaType = zod.infer<typeof SearchCertificateSchema>;
-
-export const SearchCertificateSchema = zod.object({
-  studentId: zod.string().min(1, { message: 'Student ID is required!' }),
-});
-
-// ----------------------------------------------------------------------
-
 export function AdmitForm() {
+  const queryClient = useQueryClient();
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
   const [isPrinting, setIsPrinting] = useState(false);
+  const [admit, setAdmit] = useState<IStudentAllItem | null>(null);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const promiseResolveRef = useRef<(() => void) | null>(null);
@@ -59,32 +59,43 @@ export function AdmitForm() {
     },
   });
 
-  const defaultValues: SearchCertificateSchemaType = {
-    studentId: '',
+  const defaultValues: GetAdmitSchemaType = {
+    studentAId: '',
   };
 
-  const methods = useForm<SearchCertificateSchemaType>({
-    resolver: zodResolver(SearchCertificateSchema),
+  const methods = useForm<GetAdmitSchemaType>({
+    resolver: zodResolver(GetAdmitSchema),
     defaultValues,
   });
 
   const {
+    reset,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+  const { mutate: handleAdmit, isPending } = useMutation({
+    mutationFn: async (data: GetAdmitSchemaType) => {
+      const response = await client.admit.getAdmit.$post(data);
+      return response.json();
+    },
+    onSuccess: ({ admit: admitData }) => {
+      queryClient.invalidateQueries({ queryKey: ['admit'] });
+      reset();
+      setAdmit(admitData);
       onOpen();
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    handleAdmit(data);
   });
 
   const renderDetailsDialog = () => (
-    <Dialog fullScreen open={open}>
+    <Dialog fullScreen open={!!admit && open}>
       <AppBar position="relative" color="default">
         <Toolbar>
           <IconButton color="inherit" edge="start" onClick={onClose}>
@@ -119,7 +130,7 @@ export function AdmitForm() {
             justifyContent: 'center',
           }}
         >
-          <AdmitPrint ref={contentRef} />
+          <AdmitPrint ref={contentRef} admit={admit!} />
         </Box>
       </Container>
     </Dialog>
@@ -130,7 +141,7 @@ export function AdmitForm() {
       <CardHeader title="Student admit" />
 
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text name="studentId" label="Student ID" />
+        <Field.Text name="studentAId" label="Student ID" />
 
         {renderActions()}
       </Stack>
@@ -151,7 +162,7 @@ export function AdmitForm() {
         sx={{ alignSelf: 'end' }}
         type="submit"
         variant="contained"
-        loading={isSubmitting}
+        loading={isSubmitting || isPending}
       >
         Submit
       </LoadingButton>

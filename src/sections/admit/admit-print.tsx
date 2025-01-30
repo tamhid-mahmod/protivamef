@@ -1,8 +1,12 @@
+import type { IStudentAllItem } from 'src/types/student';
+
 import { forwardRef } from 'react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+
+import { fDate } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/global-config';
 
@@ -11,10 +15,10 @@ import { Image } from 'src/components/image';
 // ----------------------------------------------------------------------
 
 type AdmitPrintProps = {
-  admit?: [];
+  admit?: IStudentAllItem;
 };
 
-export const AdmitPrint = forwardRef<HTMLDivElement, AdmitPrintProps>((_, ref) => {
+export const AdmitPrint = forwardRef<HTMLDivElement, AdmitPrintProps>(({ admit }, ref) => {
   const renderHead = () => (
     <Box
       sx={{
@@ -29,12 +33,9 @@ export const AdmitPrint = forwardRef<HTMLDivElement, AdmitPrintProps>((_, ref) =
       }}
     >
       <Typography variant="h6" sx={{ fontStyle: 'italic', mt: 8.5 }}>
-        Centre Code: 101
+        Centre Code: {admit?.centre?.code}
       </Typography>
-      <Image
-        src={`${CONFIG.assetsDir}/assets/trash/1021.jpeg`}
-        sx={{ width: 70, borderRadius: 0.5 }}
-      />
+      <Image src={admit?.imageUrl || ''} sx={{ width: 70, height: 70, borderRadius: 0.5 }} />
     </Box>
   );
 
@@ -45,35 +46,46 @@ export const AdmitPrint = forwardRef<HTMLDivElement, AdmitPrintProps>((_, ref) =
         alignSelf: 'start',
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 1,
-        }}
-      >
-        <Stack>
-          <Typography variant="h6">Name of Examine:</Typography>
-          <Typography variant="h6">Father&apos;s Name:</Typography>
-          <Typography variant="h6">Name of Centre:</Typography>
-          <Typography variant="h6">Name of Course:</Typography>
-        </Stack>
-        <Stack>
-          <Typography variant="h6">SOHAG MIAH</Typography>
-          <Typography variant="h6">MOKBUL HOSSAIN</Typography>
-          <Typography variant="h6">Protiva Karigori Proshikkan Kendro</Typography>
-          <Typography variant="h6">Certificate in Land Surveyor (Aminship)</Typography>
-        </Stack>
-      </Box>
+      <Stack sx={{ gap: 1, flexDirection: 'row', typography: 'h6' }}>
+        <Typography component="div" variant="h6" sx={{ minWidth: 153 }}>
+          Name of Examine:
+        </Typography>
+        {admit?.fullName.toLocaleUpperCase()}
+      </Stack>
+
+      <Stack sx={{ gap: 1, flexDirection: 'row', typography: 'h6' }}>
+        <Typography component="div" variant="h6" sx={{ minWidth: 153 }}>
+          Father&apos;s name:
+        </Typography>
+        {admit?.fatherName.toLocaleUpperCase()}
+      </Stack>
+
+      <Stack sx={{ gap: 1, flexDirection: 'row', typography: 'h6' }}>
+        <Typography component="div" variant="h6" sx={{ minWidth: 153 }}>
+          Name of Centre:
+        </Typography>
+        {admit?.centre?.name}
+      </Stack>
+
+      <Stack sx={{ gap: 1, flexDirection: 'row', typography: 'h6' }}>
+        <Typography component="div" variant="h6" sx={{ minWidth: 153 }}>
+          Name of Course:
+        </Typography>
+        {admit?.course?.title}
+      </Stack>
+
       <Stack flexDirection="row" gap={6}>
-        <Stack flexDirection="row" gap={8}>
-          <Typography variant="h6">Student ID:</Typography>
-          <Typography variant="h6">25001021</Typography>
+        <Stack sx={{ gap: 1, flexDirection: 'row', typography: 'h6' }}>
+          <Typography component="div" variant="h6" sx={{ minWidth: 153 }}>
+            Student ID:
+          </Typography>
+          {admit?.studentAId}
         </Stack>
-        <Stack flexDirection="row" gap={1}>
-          <Typography variant="h6">Session:</Typography>
-          <Typography variant="h6">July - December 2023</Typography>
+        <Stack sx={{ gap: 1, flexDirection: 'row', typography: 'h6' }}>
+          <Typography component="div" variant="h6">
+            Session:
+          </Typography>
+          {admit?.session}
         </Stack>
       </Stack>
     </Box>
@@ -89,7 +101,7 @@ export const AdmitPrint = forwardRef<HTMLDivElement, AdmitPrintProps>((_, ref) =
         justifyContent: 'space-between',
       }}
     >
-      <Typography variant="h6">Date: 04/01/2025</Typography>
+      <Typography variant="h6">Date: {fDate(new Date())}</Typography>
       <Typography
         variant="h6"
         sx={{
