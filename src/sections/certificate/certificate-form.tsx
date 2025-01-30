@@ -1,9 +1,11 @@
-import { z as zod } from 'zod';
+import type { ICertificateItem } from 'src/types/certificate';
+
 import { useForm } from 'react-hook-form';
 import { useReactToPrint } from 'react-to-print';
 import { useBoolean } from 'minimal-shared/hooks';
 import { useRef, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -17,6 +19,10 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 
+import { client } from 'src/lib/trpc';
+import { GetCertificateSchema, type GetCertificateSchemaType } from 'src/schemas/certificate';
+
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
@@ -24,17 +30,11 @@ import { CertificatePrint } from './certificate-print';
 
 // ----------------------------------------------------------------------
 
-export type SearchCertificateSchemaType = zod.infer<typeof SearchCertificateSchema>;
-
-export const SearchCertificateSchema = zod.object({
-  studentId: zod.string().min(1, { message: 'Student ID is required!' }),
-});
-
-// ----------------------------------------------------------------------
-
 export function CertificateForm() {
+  const queryClient = useQueryClient();
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
+  const [certificate, setCertificate] = useState<ICertificateItem | null>(null);
   const [isPrinting, setIsPrinting] = useState(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -59,35 +59,53 @@ export function CertificateForm() {
     },
   });
 
-  const defaultValues: SearchCertificateSchemaType = {
-    studentId: '',
+  const defaultValues: GetCertificateSchemaType = {
+    studentAId: '',
   };
 
-  const methods = useForm<SearchCertificateSchemaType>({
-    resolver: zodResolver(SearchCertificateSchema),
+  const methods = useForm<GetCertificateSchemaType>({
+    resolver: zodResolver(GetCertificateSchema),
     defaultValues,
   });
 
   const {
+    reset,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+  const { mutate: handleCertificate, isPending } = useMutation({
+    mutationFn: async (data: GetCertificateSchemaType) => {
+      const response = await client.certificate.getCertificate.$post(data);
+      return response.json();
+    },
+    onSuccess: ({ certificate: certificateData }) => {
+      queryClient.invalidateQueries({ queryKey: ['certificate'] });
+      reset();
+      setCertificate(certificateData);
       onOpen();
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    handleCertificate(data);
   });
 
   const renderDetailsDialog = () => (
-    <Dialog fullScreen open={open}>
+    <Dialog fullScreen open={!!certificate && open}>
       <AppBar position="relative" color="default">
         <Toolbar>
-          <IconButton color="inherit" edge="start" onClick={onClose}>
+          <IconButton
+            color="inherit"
+            edge="start"
+            onClick={() => {
+              onClose();
+              setCertificate(null);
+            }}
+          >
             <Iconify icon="mingcute:close-line" />
           </IconButton>
 
@@ -119,7 +137,7 @@ export function CertificateForm() {
             justifyContent: 'center',
           }}
         >
-          <CertificatePrint ref={contentRef} />
+          <CertificatePrint ref={contentRef} certificate={certificate!} />
         </Box>
       </Container>
     </Dialog>
@@ -130,7 +148,7 @@ export function CertificateForm() {
       <CardHeader title="Student certificate" />
 
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text name="studentId" label="Student ID" />
+        <Field.Text name="studentAId" label="Student ID" />
 
         {renderActions()}
       </Stack>
@@ -151,7 +169,7 @@ export function CertificateForm() {
         sx={{ alignSelf: 'end' }}
         type="submit"
         variant="contained"
-        loading={isSubmitting}
+        loading={isSubmitting || isPending}
       >
         Submit
       </LoadingButton>

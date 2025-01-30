@@ -1,4 +1,5 @@
 import type { Theme, CSSObject } from '@mui/material/styles';
+import type { ICertificateItem } from 'src/types/certificate';
 
 import { forwardRef } from 'react';
 
@@ -6,12 +7,15 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import { fDate, fYear } from 'src/utils/format-time';
+import { fGrade, fDecimal } from 'src/utils/format-number';
+
 import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
 type CertificatePrintProps = {
-  certificate?: [];
+  certificate?: ICertificateItem;
 };
 
 type PritnItemStyles = {
@@ -60,13 +64,13 @@ const styles: PritnItemStyles = {
     alignItems: 'center',
     justifyContent: 'end',
     mt: 3.5,
+    mb: 9,
   },
   m4: (theme: Theme): CSSObject => ({
     ...styles.baseFont,
     lineHeight: '40px',
     fontSize: theme.typography.pxToRem(28),
-    textAlign: 'justify',
-    mt: 10,
+    minHeight: 315,
   }),
   s5: (theme: Theme): CSSObject => ({
     fontSize: theme.typography.pxToRem(22),
@@ -80,76 +84,86 @@ const styles: PritnItemStyles = {
   }),
 };
 
-export const CertificatePrint = forwardRef<HTMLDivElement, CertificatePrintProps>((_, ref) => {
-  const StyledSpan = ({ children }: { children: React.ReactNode }) => (
-    <Typography component="span" sx={styles.s5}>
-      {children}
-    </Typography>
-  );
-
-  const renderCourse = () => <Box sx={styles.m3}>Certificate in Land Surveyor (Aminship) 2023</Box>;
-
-  const renderDetails = () => (
-    <Box sx={styles.detailsContainer}>
-      <Stack>
-        <Typography variant="body2">Student ID: 2023001021</Typography>
-        <Typography variant="body2">Session: July - December 2023</Typography>
-      </Stack>
-    </Box>
-  );
-
-  const renderParagraph = () => (
-    <Box sx={styles.m4}>
-      This is to certify that <StyledSpan>SOHAG MIAH</StyledSpan> Son of{' '}
-      <StyledSpan>MOKBUL HOSSAIN</StyledSpan> & <StyledSpan>SHAMIMA BEGUM</StyledSpan> has
-      Perticipated in all the semesters from <StyledSpan>July - December 2023</StyledSpan> of{' '}
-      <StyledSpan>6 Month</StyledSpan> Duration in{' '}
-      <StyledSpan>Certificate in Land Surveyor (Aminship)</StyledSpan> at the Institute of{' '}
-      <StyledSpan>Protiva Karigori Proshikkan Kendro</StyledSpan> Code <StyledSpan>101</StyledSpan>{' '}
-      under this organization and duly passed the final examination in GPA{' '}
-      <StyledSpan>5.00</StyledSpan> on a scale of 5.00 & grade <StyledSpan>A+</StyledSpan>.
-    </Box>
-  );
-
-  const renderSignature = () => (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontStyle: 'italic',
-        mt: 11,
-      }}
-    >
-      <Typography variant="h6" sx={{ textDecoration: 'none', ...styles.h6 }}>
-        Date of issue: Dec 18, 2023
+export const CertificatePrint = forwardRef<HTMLDivElement, CertificatePrintProps>(
+  ({ certificate }, ref) => {
+    const StyledSpan = ({ children }: { children: React.ReactNode }) => (
+      <Typography component="span" sx={styles.s5}>
+        {children}
       </Typography>
+    );
 
-      <Stack>
-        <Typography variant="h6" sx={styles.h6}>
-          Controller of Examinations
+    const renderCourse = () => (
+      <Box sx={styles.m3}>
+        {certificate?.student?.course?.title} {fYear(certificate?.createdAt)}
+      </Box>
+    );
+
+    const renderDetails = () => (
+      <Box sx={styles.detailsContainer}>
+        <Stack>
+          <Typography variant="body2">Student ID: {certificate?.student?.studentAId}</Typography>
+          <Typography variant="body2">Session: {certificate?.student?.session}</Typography>
+        </Stack>
+      </Box>
+    );
+
+    const renderParagraph = () => (
+      <Box sx={styles.m4}>
+        This is to certify that{' '}
+        <StyledSpan>{certificate?.student?.fullName.toLocaleUpperCase()}</StyledSpan> Son of{' '}
+        <StyledSpan>{certificate?.student?.fatherName.toLocaleUpperCase()}</StyledSpan> &{' '}
+        <StyledSpan>{certificate?.student?.motherName.toLocaleUpperCase()}</StyledSpan> has
+        Perticipated in all the semesters from{' '}
+        <StyledSpan>{certificate?.student?.session}</StyledSpan> of{' '}
+        <StyledSpan>{certificate?.student?.course?.duration}</StyledSpan> Duration in{' '}
+        <StyledSpan>{certificate?.student?.course?.title}</StyledSpan> at the Institute of{' '}
+        <StyledSpan>{certificate?.student?.centre?.name}</StyledSpan> Code{' '}
+        <StyledSpan>{certificate?.student?.centre?.code}</StyledSpan> under this organization and
+        duly passed the final examination in GPA{' '}
+        <StyledSpan>{fDecimal(certificate?.mark)}</StyledSpan> on a scale of 5.00 & grade{' '}
+        <StyledSpan>{fGrade(certificate?.mark)}</StyledSpan>.
+      </Box>
+    );
+
+    const renderSignature = () => (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontStyle: 'italic',
+        }}
+      >
+        <Typography variant="h6" sx={{ textDecoration: 'none', ...styles.h6 }}>
+          Date of issue: {fDate(certificate?.createdAt)}
         </Typography>
-      </Stack>
 
-      <Stack>
-        <Typography variant="h6" sx={styles.h6}>
-          Chairman
-        </Typography>
-      </Stack>
-    </Box>
-  );
+        <Stack>
+          <Typography variant="h6" sx={styles.h6}>
+            Controller of Examinations
+          </Typography>
+        </Stack>
 
-  return (
-    <Box sx={styles.certificateContainer}>
-      <Box ref={ref} sx={styles.contentBox}>
-        <Box mx={2}>
-          {renderCourse()}
-          {renderDetails()}
-          {renderParagraph()}
-          {renderSignature()}
+        <Stack>
+          <Typography variant="h6" sx={styles.h6}>
+            Chairman
+          </Typography>
+        </Stack>
+      </Box>
+    );
+
+    return (
+      <Box sx={styles.certificateContainer}>
+        <Box ref={ref} sx={styles.contentBox}>
+          <Box mx={2}>
+            {renderCourse()}
+            {renderDetails()}
+            {renderParagraph()}
+            {renderSignature()}
+          </Box>
         </Box>
       </Box>
-    </Box>
-  );
-});
+    );
+  }
+);

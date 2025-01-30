@@ -54,6 +54,25 @@ export function fDecimal(inputValue: InputNumberValue, options?: Options) {
 
 // ----------------------------------------------------------------------
 
+export function fGrade(inputValue: InputNumberValue): string {
+  const number = processInput(inputValue);
+  if (number === null) return '';
+
+  if (number >= 4.75) return 'A+';
+  if (number >= 4.5) return 'A';
+  if (number >= 4.25) return 'A-';
+  if (number >= 4.0) return 'B+';
+  if (number >= 3.5) return 'B';
+  if (number >= 3.0) return 'B-';
+  if (number >= 2.5) return 'C+';
+  if (number >= 2.0) return 'C';
+  if (number >= 1.5) return 'C-';
+  if (number >= 1.0) return 'D';
+  return 'F';
+}
+
+// ----------------------------------------------------------------------
+
 export function fCurrency(inputValue: InputNumberValue, options?: Options) {
   const locale = DEFAULT_LOCALE;
 

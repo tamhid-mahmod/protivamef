@@ -11,6 +11,7 @@ import { studentRouter } from './routers/student-router';
 import { divisionRouter } from './routers/division-router';
 import { districtRouter } from './routers/district-router';
 import { categoryRouter } from './routers/category-router';
+import { certificateRouter } from './routers/certificate-router';
 
 // ----------------------------------------------------------------------
 
@@ -29,7 +30,8 @@ const appRouter = app
   .route('/category', categoryRouter)
   .route('/course', courseRouter)
   .route('/student', studentRouter)
-  .route('/result', resultRouter);
+  .route('/result', resultRouter)
+  .route('/certificate', certificateRouter);
 
 // The handler Next.js uses to answer API requests
 export const httpHandler = handle(app);

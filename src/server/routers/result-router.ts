@@ -94,6 +94,10 @@ export const resultRouter = router({
         throw new HTTPException(400, { message: 'Student not registered yet!' });
       }
 
+      if (!existingStudent.session) {
+        throw new HTTPException(400, { message: "Student don't have session!" });
+      }
+
       const existingResult = await getresultByStudentAId(studentAId);
 
       if (existingResult) {

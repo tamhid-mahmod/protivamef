@@ -100,6 +100,19 @@ export function fTime(date: DatePickerFormat, template?: string): string {
 // ----------------------------------------------------------------------
 
 /**
+ * @output 2025
+ */
+export function fYear(date: DatePickerFormat): string {
+  if (!isValidDate(date)) {
+    return 'Invalid date';
+  }
+
+  return dayjs(date).format('YYYY');
+}
+
+// ----------------------------------------------------------------------
+
+/**
  * @output 1713250100
  */
 export function fTimestamp(date: DatePickerFormat): number | 'Invalid date' {
