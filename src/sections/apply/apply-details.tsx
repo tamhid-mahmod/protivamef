@@ -57,7 +57,7 @@ export function ApplyDetails({ student }: Props) {
       >
         <Box
           component="img"
-          alt="Invoice logo"
+          alt="Apply logo"
           src="/logo/logo-single.svg"
           sx={{ width: 100, height: 100 }}
         />

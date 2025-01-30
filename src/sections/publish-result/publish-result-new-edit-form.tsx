@@ -58,7 +58,7 @@ export function PublishResultNewEditForm({ open, onClose, currentResult }: Props
     formState: { isSubmitting },
   } = methods;
 
-  const { mutate: handleDivision, isPending } = useMutation({
+  const { mutate: handleResult, isPending } = useMutation({
     mutationFn: async (data: UpdateResultSchemaType | NewResultSchemaType) => {
       if ('resultId' in data && currentResult) {
         await client.result.updateResult.$post(data);
@@ -82,9 +82,9 @@ export function PublishResultNewEditForm({ open, onClose, currentResult }: Props
 
   const onSubmit = handleSubmit(async (data) => {
     if (currentResult) {
-      handleDivision({ resultId: currentResult.id, ...data });
+      handleResult({ resultId: currentResult.id, ...data });
     } else {
-      handleDivision(data);
+      handleResult(data);
     }
   });
 

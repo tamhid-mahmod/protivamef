@@ -93,7 +93,7 @@ export function CentreTableRow({
 
       <TableCell>{row.phoneNumber}</TableCell>
 
-      <TableCell>{row.division.name}</TableCell>
+      <TableCell>{row.division?.name}</TableCell>
 
       <TableCell>{row.district.name}</TableCell>
 

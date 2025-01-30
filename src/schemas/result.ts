@@ -3,6 +3,14 @@ import { z as zod } from 'zod';
 
 // ----------------------------------------------------------------------
 
+export type GetResultSchemaType = zod.infer<typeof GetResultSchema>;
+
+export const GetResultSchema = zod.object({
+  studentAId: zod.string().min(1, { message: 'Stident ID is required!' }),
+});
+
+// ----------------------------------------------------------------------
+
 export type NewResultSchemaType = zod.infer<typeof NewResultSchema>;
 
 export const NewResultSchema = zod.object({

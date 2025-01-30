@@ -58,10 +58,10 @@ export type IStudentItem = {
 };
 
 export type IStudentAllItem = IStudentItem & {
-  educationBackground: IStudentEducationBackgroundItem;
-  appliedFor: IStudentAppliedForItem;
-  division: IDivisionItem | null;
-  district: IDistrictItem | null;
-  centre: ICentreItem | null;
-  course: ICourseItem | null;
+  educationBackground?: IStudentEducationBackgroundItem;
+  appliedFor?: IStudentAppliedForItem;
+  division?: IDivisionItem | null;
+  district?: IDistrictItem | null;
+  centre?: ICentreItem | null;
+  course?: ICourseItem | null;
 };

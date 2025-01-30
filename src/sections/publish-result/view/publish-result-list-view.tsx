@@ -63,8 +63,6 @@ export function PublishResultListView() {
 
   const { results } = useGetResults();
 
-  console.log(results);
-
   const [tableData, setTableData] = useState<IResultItem[]>(results);
 
   const filters = useSetState<IResultTableFilters>({ studentAId: '' });
