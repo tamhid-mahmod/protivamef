@@ -15,6 +15,7 @@ export type ConfigValue = {
     skip: boolean;
     redirectPath: string;
   };
+  mapboxApiKey: string;
   s3Bucket: {
     bucketName: string;
     region: string;
@@ -40,6 +41,10 @@ export const CONFIG: ConfigValue = {
     skip: false,
     redirectPath: paths.dashboard.root,
   },
+  /**
+   * Mapbox
+   */
+  mapboxApiKey: process.env.NEXT_PUBLIC_MAPBOX_API_KEY ?? '',
   /**
    * S3
    */
