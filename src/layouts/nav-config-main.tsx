@@ -34,7 +34,6 @@ export const navData: NavMainProps['data'] = [
         items: [
           { title: 'Chairman', path: paths.chairman },
           { title: 'How to apply', path: paths.howToApply },
-          { title: 'Mission & Vision', path: paths.missionAndVision },
         ],
       },
     ],
