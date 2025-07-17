@@ -35,6 +35,18 @@ const SLIDES = [
     coverUrl: '/assets/images/home/hero/slide-4.jpg',
     description: '',
   },
+  {
+    id: '5',
+    title: '',
+    coverUrl: '/assets/images/home/hero/slide-5.jpg',
+    description: '',
+  },
+  {
+    id: '6',
+    title: '',
+    coverUrl: '/assets/images/home/hero/slide-6.jpg',
+    description: '',
+  },
 ];
 
 export default function Home() {
