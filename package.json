@@ -24,7 +24,7 @@
     "db:push": "npx prisma db push",
     "db:dev": "npx prisma migrate dev",
     "db:studio": "npx prisma studio",
-    "postinstall": "prisma generate --schema=./prisma/schema/schema.prisma"
+    "postinstall": "prisma generate"
   },
   "engines": {
     "node": "20.x"
