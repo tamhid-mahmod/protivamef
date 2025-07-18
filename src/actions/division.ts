@@ -1,4 +1,4 @@
-import type { IDivisionItem, IDivisionWithDistrictsItem } from 'src/types/division';
+import type { IDivisionItem } from 'src/types/division';
 
 import { useMemo } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
@@ -41,9 +41,9 @@ export function useGetDivisions() {
 
 // ----------------------------------------------------------------------
 
-type DivisionsWithDistrictsData = {
-  divisionsWithDistricts: IDivisionWithDistrictsItem[];
-};
+// type DivisionsWithDistrictsData = {
+//   divisionsWithDistricts: IDivisionWithDistrictsItem[];
+// };
 
 export function useGetDivisionsWithDistricts() {
   const {
@@ -51,7 +51,7 @@ export function useGetDivisionsWithDistricts() {
     isPending: isLoading,
     error,
     isFetching: isValidating,
-  }: UseQueryResult<DivisionsWithDistrictsData> = useQuery({
+  }: UseQueryResult<any> = useQuery({
     queryKey: ['divisions-with-districts'],
     queryFn: async () => {
       const res = await client.division.getDivisionsWithDistricts.$get();

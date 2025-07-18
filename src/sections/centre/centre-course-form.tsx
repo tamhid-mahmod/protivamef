@@ -35,7 +35,7 @@ export function CentreCourseForm({ centreId }: Props) {
   const { assignedCourses } = useGetAssignedCourses(centreId);
 
   const availableCourses = courses.filter(
-    (course) => !assignedCourses.some((assigned) => assigned.courseId === course.id)
+    (course: any) => !assignedCourses.some((assigned: any) => assigned.courseId === course.id)
   );
 
   const defaultValues: NewCentreCourseSchemaType = {

@@ -1,4 +1,4 @@
-import type { ICourseItem, ICourseWithCategoryItem } from 'src/types/course';
+// import type { ICourseItem, ICourseWithCategoryItem } from 'src/types/course';
 
 import { useMemo } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
@@ -7,9 +7,9 @@ import { client } from 'src/lib/trpc';
 
 // ----------------------------------------------------------------------
 
-type CoursesData = {
-  courses: ICourseItem[];
-};
+// type CoursesData = {
+//   courses: ICourseItem[];
+// };
 
 export function useGetCourses() {
   const {
@@ -17,7 +17,7 @@ export function useGetCourses() {
     isPending: isLoading,
     error,
     isFetching: isValidating,
-  }: UseQueryResult<CoursesData> = useQuery({
+  }: UseQueryResult<any> = useQuery({
     queryKey: ['courses'],
     queryFn: async () => {
       const res = await client.course.getCourses.$get();
@@ -41,9 +41,9 @@ export function useGetCourses() {
 
 // ----------------------------------------------------------------------
 
-type CoursesWithCategoryData = {
-  coursesWithCategory: ICourseWithCategoryItem[];
-};
+// type CoursesWithCategoryData = {
+//   coursesWithCategory: ICourseWithCategoryItem[];
+// };
 
 export function useGetCoursesWithCategory() {
   const {
@@ -51,7 +51,7 @@ export function useGetCoursesWithCategory() {
     isPending: isLoading,
     error,
     isFetching: isValidating,
-  }: UseQueryResult<CoursesWithCategoryData> = useQuery({
+  }: UseQueryResult<any> = useQuery({
     queryKey: ['courses'],
     queryFn: async () => {
       const res = await client.course.getCoursesWithCategory.$get();

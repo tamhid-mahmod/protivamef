@@ -72,7 +72,7 @@ export function CentreNewEditForm({ currentCentre }: Props) {
 
   const districts = useMemo(() => {
     const selectedDivision = divisionsWithDistricts.find(
-      (division) => division.id === selectedDivisionId
+      (division: any) => division.id === selectedDivisionId
     );
     return selectedDivision?.districts || [];
   }, [selectedDivisionId, divisionsWithDistricts]);
@@ -142,7 +142,7 @@ export function CentreNewEditForm({ currentCentre }: Props) {
           }}
         >
           <Field.Select name="divisionId" label="Division">
-            {divisionsWithDistricts.map((option) => (
+            {divisionsWithDistricts.map((option: any) => (
               <MenuItem key={option.id} value={option.id}>
                 {option.name}
               </MenuItem>
@@ -150,7 +150,7 @@ export function CentreNewEditForm({ currentCentre }: Props) {
           </Field.Select>
 
           <Field.Select name="districtId" label="District">
-            {districts.map((option) => (
+            {districts.map((option: any) => (
               <MenuItem key={option.id} value={option.id}>
                 {option.name}
               </MenuItem>

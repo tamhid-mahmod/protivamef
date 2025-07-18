@@ -1,4 +1,4 @@
-import type { IResultItem } from 'src/types/result';
+// import type { IResultItem } from 'src/types/result';
 
 import { useMemo } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
@@ -7,9 +7,9 @@ import { client } from 'src/lib/trpc';
 
 // ----------------------------------------------------------------------
 
-type ResultsData = {
-  results: IResultItem[];
-};
+// type ResultsData = {
+//   results: IResultItem[];
+// };
 
 export function useGetResults() {
   const {
@@ -17,7 +17,7 @@ export function useGetResults() {
     isPending: isLoading,
     error,
     isFetching: isValidating,
-  }: UseQueryResult<ResultsData> = useQuery({
+  }: UseQueryResult<any> = useQuery({
     queryKey: ['results'],
     queryFn: async () => {
       const res = await client.result.getResults.$get();
