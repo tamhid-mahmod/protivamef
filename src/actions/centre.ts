@@ -1,6 +1,6 @@
 import type {
   ICentreItem,
-  ICentreCourseItem,
+  // ICentreCourseItem,
   ICentresWithDivisionAndDistrict,
 } from 'src/types/centre';
 
@@ -79,9 +79,9 @@ export function useGetCentresWithDivisionAndDistrict() {
 
 // ----------------------------------------------------------------------
 
-type AssignedCoursesData = {
-  assignedCourses: ICentreCourseItem[];
-};
+// type AssignedCoursesData = {
+//   assignedCourses: ICentreCourseItem[];
+// };
 
 export function useGetAssignedCourses(centreId: string) {
   const {
@@ -89,7 +89,7 @@ export function useGetAssignedCourses(centreId: string) {
     isPending: isLoading,
     error,
     isFetching: isValidating,
-  }: UseQueryResult<AssignedCoursesData> = useQuery({
+  }: UseQueryResult<any> = useQuery({
     queryKey: ['centre-courses'],
     queryFn: async () => {
       const res = await client.centre.getAssignedCourses.$get({ centreId });

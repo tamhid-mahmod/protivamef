@@ -43,7 +43,6 @@ export function ApplyPDFDownload({ student }: ApplyPDFProps) {
       fileName={`protiva-${student?.fullName}-${student?.studentAId}`}
       style={{ textDecoration: 'none' }}
     >
-      {/* @ts-expect-error: https://github.com/diegomura/react-pdf/issues/2886 */}
       {({ loading }) => renderButton(loading)}
     </PDFDownloadLink>
   );

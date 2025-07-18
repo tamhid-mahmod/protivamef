@@ -77,12 +77,12 @@ export function AdmitForm() {
   const { mutate: handleAdmit, isPending } = useMutation({
     mutationFn: async (data: GetAdmitSchemaType) => {
       const response = await client.admit.getAdmit.$post(data);
-      return response.json();
+      return await response.json();
     },
-    onSuccess: ({ admit: admitData }) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['admit'] });
       reset();
-      setAdmit(admitData);
+      setAdmit(data.admit);
       onOpen();
     },
     onError: (error) => {

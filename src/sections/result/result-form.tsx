@@ -56,13 +56,13 @@ export function ResultForm() {
   const { mutate: handleResult, isPending } = useMutation({
     mutationFn: async (data: GetResultSchemaType) => {
       const response = await client.result.getResult.$post(data);
-      return response.json();
+      return await response.json();
     },
-    onSuccess: ({ result: resultData }) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['result'] });
       reset();
       setError('');
-      setResult(resultData);
+      setResult(data.result);
     },
     onError: (err) => {
       setError(err.message);

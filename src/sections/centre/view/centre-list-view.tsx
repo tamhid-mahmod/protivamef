@@ -101,8 +101,8 @@ export function CentreListView() {
   });
 
   const filteredDistricts = divisionsWithDistricts
-    .filter((division) => currentFilters.divisions.includes(division.name))
-    .flatMap((division) => division.districts);
+    .filter((division: any) => currentFilters.divisions.includes(division.name))
+    .flatMap((division: any) => division.districts);
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
@@ -252,8 +252,8 @@ export function CentreListView() {
             filters={filters}
             onResetPage={table.onResetPage}
             options={{
-              divisions: divisionsWithDistricts.map((division) => division.name),
-              districts: filteredDistricts.map((district) => district.name),
+              divisions: divisionsWithDistricts.map((division: any) => division.name),
+              districts: filteredDistricts.map((district: any) => district.name),
             }}
           />
 

@@ -77,12 +77,12 @@ export function CertificateForm() {
   const { mutate: handleCertificate, isPending } = useMutation({
     mutationFn: async (data: GetCertificateSchemaType) => {
       const response = await client.certificate.getCertificate.$post(data);
-      return response.json();
+      return await response.json();
     },
-    onSuccess: ({ certificate: certificateData }) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['certificate'] });
       reset();
-      setCertificate(certificateData);
+      setCertificate(data.certificate);
       onOpen();
     },
     onError: (error) => {
