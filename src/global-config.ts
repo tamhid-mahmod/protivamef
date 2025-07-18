@@ -16,9 +16,11 @@ export type ConfigValue = {
     redirectPath: string;
   };
   mapboxApiKey: string;
-  s3Bucket: {
+  r2: {
+    publicUrl: string;
     bucketName: string;
     region: string;
+    accountId: string;
     accessKeyId: string;
     secretAccessKey: string;
   };
@@ -48,9 +50,11 @@ export const CONFIG: ConfigValue = {
   /**
    * S3
    */
-  s3Bucket: {
+  r2: {
+    publicUrl: 'https://pub-cd632192ff444a8ebea24d9e828b176e.r2.dev/protivamef',
     bucketName: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME ?? '',
     region: process.env.NEXT_PUBLIC_AWS_S3_REGION ?? '',
+    accountId: process.env.NEXT_PUBLIC_AWS_S3_ACCOUNTID ?? '',
     accessKeyId: process.env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID ?? '',
     secretAccessKey: process.env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY ?? '',
   },
