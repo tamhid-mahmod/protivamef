@@ -1,0 +1,238 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  BANNED
+}
+
+enum UserRole {
+  ADMIN
+  ADMIN_MODERATOR
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  status        UserStatus      @default(PENDING)
+  role          UserRole        @default(ADMIN)
+  accounts      Account[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+
+model Category {
+  id            String          @id @default(cuid())
+  name          String          @unique
+  description   String
+  coverUrl      String
+  slug          String          @unique
+  Courses       Course[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+}
+
+enum CentrePublish {
+  draft
+  published
+}
+
+model Centre {
+  id            String          @id @default(cuid())
+  name          String
+  code          String          @unique
+  email         String          @unique
+  phoneNumber   String
+  address       String
+  publish       CentrePublish   @default(draft)
+  divisionId    String
+  districtId    String
+  courses       CentreCourse[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  division Division @relation(fields: [divisionId], references: [id])
+  district District @relation(fields: [districtId], references: [id])
+
+  @@index([divisionId, districtId])
+  @@unique([code, email])
+}
+
+model CentreCourse {
+  id            String          @id @default(cuid())
+  centreId      String
+  courseId      String
+
+  createdAt DateTime @default(now())
+
+  centre Centre @relation(fields: [centreId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([centreId, courseId])
+}
+
+enum CoursePublish {
+  draft
+  published
+}
+
+model Course {
+  id            String          @id @default(cuid())
+  categoryId    String
+  title         String
+  code          String          @unique
+  duration      String
+  qualification String
+  fee           Decimal
+  feeBase       Decimal?
+  publish       CoursePublish   @default(draft)
+  description   String
+  centres       CentreCourse[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([code])
+}
+
+model District {
+  id            String          @id @default(cuid())
+  name          String
+  divisionId    String
+  centres        Centre[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  division Division @relation(fields: [divisionId], references: [id], onDelete: Cascade)
+
+  @@index([divisionId])
+  @@unique([name, divisionId])
+}
+
+model Division {
+  id            String          @id @default(cuid())
+  name          String          @unique
+  districts      District[]
+  centres        Centre[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Result {
+  id            String          @id @default(cuid())
+  studentAId    String          @unique
+  mark          Decimal         @db.Decimal(5, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student Student?
+
+  @@index([studentAId])
+}
+
+enum StudentStatus {
+  pending
+  registered
+  rejected
+}
+
+model Student {
+  id                            String          @id @default(cuid())
+  studentAId                    String          @unique
+  imageUrl                      String?
+  fullName                      String
+  dateOfBirth                   DateTime
+  gender                        String
+  email                         String?
+  phoneNumber                   String?
+  address                       String
+  religion                      String
+  fatherName                    String
+  motherName                    String
+  session                       String?
+  status                        StudentStatus  @default(pending)
+  iAgree                        Boolean
+  studentEducationBackgroundId  String         @unique
+  studentAppliedForId           String         @unique
+  resultId                      String?        @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  educationBackground StudentEducationBackground  @relation(fields: [studentEducationBackgroundId], references: [id])
+  appliedFor          StudentAppliedFor           @relation(fields: [studentAppliedForId], references: [id])
+  result              Result?                     @relation(fields: [resultId], references: [id])
+
+  @@index([studentAId])
+}
+
+model StudentAppliedFor {
+  id            String          @id @default(cuid())
+  divisionId    String
+  districtId    String
+  centreId      String
+  courseId      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student Student?
+}
+
+model StudentEducationBackground {
+  id            String          @id @default(cuid())
+  examination   String
+  board         String
+  passYear      String
+  roll          String
+  result        String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student       Student?
+}
+
