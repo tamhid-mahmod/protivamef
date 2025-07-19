@@ -23,3 +23,19 @@ export const NewUserSchema = zod
     message: 'Passwords do not match!',
     path: ['confirmPassword'],
   });
+
+export type ChangePasswordSchemaType = zod.infer<typeof ChangePasswordSchema>;
+
+export const ChangePasswordSchema = zod
+  .object({
+    oldPassword: zod.string().min(1, { message: 'Old password is required!' }),
+    newPassword: zod
+      .string()
+      .min(1, { message: 'New password is required!' })
+      .min(6, { message: 'Password must be at least 6 characters!' }),
+    confirmPassword: zod.string().min(1, { message: 'Confirm password is required!' }),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match!',
+    path: ['confirmPassword'],
+  });
