@@ -39,3 +39,9 @@ export const ChangePasswordSchema = zod
     message: 'Passwords do not match!',
     path: ['confirmPassword'],
   });
+
+export type DeleteUserSchemaType = zod.infer<typeof DeleteUserSchema>;
+
+export const DeleteUserSchema = zod.object({
+  userId: zod.string().min(1, { message: 'User id is required!' }),
+});

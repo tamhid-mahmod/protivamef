@@ -4,7 +4,7 @@ import { HTTPException } from 'hono/http-exception';
 import { db } from 'src/lib/db';
 import { getUserById } from 'src/services/user';
 
-import { ChangePasswordSchema } from 'src/sections/user/schema';
+import { DeleteUserSchema, ChangePasswordSchema } from 'src/sections/user/schema';
 
 import { auth } from 'src/auth/auth';
 
@@ -50,6 +50,39 @@ export const UserRouter = router({
       return c.json({ success: true });
     } catch (error) {
       console.error('Error change password:', error);
+      throw error;
+    }
+  }),
+
+  getUsers: privateProcedure.query(async ({ c }) => {
+    const users = await db.user.findMany();
+
+    return c.superjson({ users });
+  }),
+
+  deleteUser: privateProcedure.input(DeleteUserSchema).mutation(async ({ c, input }) => {
+    const { userId } = input;
+
+    try {
+      const existingUser = await db.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (!existingUser) {
+        throw new HTTPException(404, { message: 'The resource to be deleted does not exist.' });
+      }
+
+      await db.user.delete({
+        where: {
+          id: existingUser.id,
+        },
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting user:', error);
       throw error;
     }
   }),
