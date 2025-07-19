@@ -43,6 +43,7 @@ export const endpoints = {
   },
   course: {
     details: '/api/course/getCourseDetails',
+    slug: '/api/course/getCoursesBySlug',
   },
   district: {
     listByDivision: '/api/district/getDistrictsByDivision',

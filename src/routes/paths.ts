@@ -22,7 +22,7 @@ export const paths = {
   faqs: '/faqs',
   course: {
     root: `/course`,
-    details: (id: string) => `/course/${id}`,
+    details: (id: string) => `/course/details/${id}`,
   },
   // AUTH
   auth: {
