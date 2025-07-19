@@ -32,9 +32,17 @@ import { Form, Field } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
-const DURATION = Array.from({ length: 12 }, (_, i) =>
-  i + 1 === 12 ? '1 Year' : `${i + 1} Month${i + 1 > 1 ? 's' : ''}`
-);
+const DURATION = [
+  ...Array.from({ length: 12 }, (_, i) =>
+    i + 1 === 12 ? '1 Year' : `${i + 1} Month${i + 1 > 1 ? 's' : ''}`
+  ),
+  '1.5 Years',
+  '2 Years',
+  '2.5 Years',
+  '3 Years',
+  '3.5 Years',
+  '4 Years',
+];
 
 const QUALIFICATION = [
   { value: 'JSC', label: 'JSC' },

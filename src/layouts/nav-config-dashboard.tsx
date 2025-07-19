@@ -30,8 +30,8 @@ export const navData: NavSectionProps['data'] = [
    * Overview
    */
   {
-    subheader: 'Overview',
-    items: [{ title: 'App', path: paths.dashboard.root, icon: ICONS.dashboard }],
+    subheader: 'Links',
+    items: [{ title: 'Apply online', path: paths.apply.applyOnline, icon: ICONS.dashboard }],
   },
   /**
    * Management
@@ -44,7 +44,7 @@ export const navData: NavSectionProps['data'] = [
         path: paths.dashboard.user.root,
         icon: ICONS.user,
         children: [
-          { title: 'List', path: paths.dashboard.user.list },
+          { title: 'List', path: paths.dashboard.user.root },
           { title: 'New', path: paths.dashboard.user.new },
         ],
       },

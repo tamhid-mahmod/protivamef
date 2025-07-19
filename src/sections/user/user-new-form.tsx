@@ -55,7 +55,7 @@ export function UserNewForm() {
       if ('success' in response) {
         reset();
         toast.success('Create success!');
-        router.push(paths.dashboard.user.list);
+        router.push(paths.dashboard.user.root);
       }
 
       if ('error' in response) {
