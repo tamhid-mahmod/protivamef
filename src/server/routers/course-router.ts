@@ -21,6 +21,26 @@ export const courseRouter = router({
     return c.superjson({ courses });
   }),
 
+  getCoursesBySlug: publicProcedure
+    .input(zod.object({ slug: zod.string().min(1) }))
+    .query(async ({ c, input }) => {
+      const { slug } = input;
+
+      const category = await db.category.findUnique({
+        where: {
+          slug,
+        },
+      });
+
+      const courses = await db.course.findMany({
+        where: {
+          categoryId: category?.id,
+        },
+      });
+
+      return c.json({ courses, category });
+    }),
+
   getCourseDetails: publicProcedure
     .input(zod.object({ courseId: zod.string().min(1) }))
     .query(async ({ c, input }) => {

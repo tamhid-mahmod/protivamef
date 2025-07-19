@@ -9,3 +9,11 @@ export async function getCourse(id: string) {
 
   return res.data;
 }
+
+export async function getCoursesBySlug(slug: string) {
+  const URL = slug ? `${endpoints.course.slug}?slug=${slug}` : '';
+
+  const res = await axios.get(URL);
+
+  return res.data;
+}
