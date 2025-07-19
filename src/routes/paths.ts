@@ -38,6 +38,7 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/user`,
       list: `${ROOTS.DASHBOARD}/user/list`,
       new: `${ROOTS.DASHBOARD}/user/new`,
+      changePassword: `${ROOTS.DASHBOARD}/user/change-password`,
     },
     student: {
       root: `${ROOTS.DASHBOARD}/student`,

@@ -4,6 +4,7 @@ import { handle } from 'hono/vercel';
 
 import { CONFIG } from 'src/global-config';
 
+import { UserRouter } from './routers/user-router';
 import { admitRouter } from './routers/admit-router';
 import { centreRouter } from './routers/centre-router';
 import { courseRouter } from './routers/course-router';
@@ -33,7 +34,8 @@ const appRouter = app
   .route('/student', studentRouter)
   .route('/result', resultRouter)
   .route('/certificate', certificateRouter)
-  .route('/admit', admitRouter);
+  .route('/admit', admitRouter)
+  .route('/user', UserRouter);
 
 // The handler Next.js uses to answer API requests
 export const httpHandler = handle(app);
