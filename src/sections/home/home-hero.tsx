@@ -121,7 +121,7 @@ export function HomeHero({ data, sx, ...other }: Props) {
           [theme.breakpoints.up(lgKey)]: { fontSize: 16, lineHeight: '36px' },
         }}
       >
-        {`Approved by BTEB & Government of the People's Republic of Bangladesh`}
+        {`Approved by the Government of the People's Republic of Bangladesh`}
       </Typography>
       <Typography
         variant="body2"
@@ -131,7 +131,7 @@ export function HomeHero({ data, sx, ...other }: Props) {
           [theme.breakpoints.up(smKey)]: { whiteSpace: 'pre' },
         }}
       >
-        (Govt. Reg. No-S-12757, BTEB Code: 52067, 52103)
+        (Govt. Reg. No-S-12757)
       </Typography>
     </m.div>
   );
@@ -337,7 +337,7 @@ function CarouselItem({ item, index }: CarouselItemProps) {
       component="img"
       alt={item.title}
       src={item.coverUrl}
-      sx={{ objectFit: 'cover', aspectRatio: { xs: '4/3', sm: '16/10' } }}
+      sx={{ objectFit: 'fill', aspectRatio: { xs: '4/3', sm: '16/10' } }}
     />
   );
 }
