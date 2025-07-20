@@ -10,44 +10,12 @@ export const metadata: Metadata = {
     'Protiva Multi Education Foundation is dedicated to fostering education, skill development, and community empowerment. Join us in shaping a brighter future through innovative learning opportunities and impactful initiatives.',
 };
 
-const SLIDES = [
-  {
-    id: '1',
-    title: '',
-    coverUrl: '/assets/images/home/hero/slide-1.jpg',
-    description: '',
-  },
-  {
-    id: '2',
-    title: '',
-    coverUrl: '/assets/images/home/hero/slide-2.jpg',
-    description: '',
-  },
-  {
-    id: '3',
-    title: '',
-    coverUrl: '/assets/images/home/hero/slide-3.jpg',
-    description: '',
-  },
-  {
-    id: '4',
-    title: '',
-    coverUrl: '/assets/images/home/hero/slide-4.jpg',
-    description: '',
-  },
-  {
-    id: '5',
-    title: '',
-    coverUrl: '/assets/images/home/hero/slide-5.jpg',
-    description: '',
-  },
-  {
-    id: '6',
-    title: '',
-    coverUrl: '/assets/images/home/hero/slide-6.jpg',
-    description: '',
-  },
-];
+const SLIDES = Array.from({ length: 12 }, (_, i) => ({
+  id: `${i + 1}`,
+  title: '',
+  coverUrl: `/assets/images/home/hero/slider-${i + 1}.jpg`,
+  description: '',
+}));
 
 export default function Home() {
   return <HomeView data={SLIDES} />;
